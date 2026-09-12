@@ -16,3 +16,19 @@
 .design-box-copy h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:36px;line-height:1}
 .design-box-copy .box-body-preview{font-size:18px;line-height:1.18;white-space:normal}
 .design-box-copy .box-body-preview div{min-height:1em}
+
+/* Modelo 1 — refinements from modelo 1 isa(3).psd */
+.editable-title{gap:.24em;height:auto;min-height:89px;overflow:visible}
+.editable-title>span{display:inline-block}
+.title-highlight{color:#5B7E4E}
+.additional-info-preview{position:absolute;left:76px;top:1575px;width:548px;display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+.additional-info-icon{width:20px;height:19px;flex:0 0 20px;object-fit:contain;margin-top:1px}
+.additional-info-copy{width:509px;font-family:'Montserrat',Arial,sans-serif;font-size:14px;line-height:1.34;font-weight:500;color:#014744;text-transform:none}
+.design-box-icon-wrap img{display:block;max-width:94px;max-height:94px;object-fit:contain}
+.design-box-icon-wrap .uploaded-svg{display:block;width:94px;height:94px;color:inherit}
+.design-box-icon-wrap .uploaded-svg *{vector-effect:non-scaling-stroke}
+.uploaded-icon-mask{display:block;width:94px;height:94px;background:currentColor;-webkit-mask-image:var(--icon-mask);mask-image:var(--icon-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
+.icon-upload-field input[type=file]{width:100%;border:1px dashed #c9cbd1;border-radius:10px;padding:10px;background:#fff}
+.editable-subtitle{font-family:'Montserrat',Arial,sans-serif}
+.editable-body,.additional-info-copy,.design-box-copy .box-body-preview{font-family:'Montserrat',Arial,sans-serif}
+.design-box-copy h3{font-family:'Cormorant Garamond',serif}

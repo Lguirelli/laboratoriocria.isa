@@ -127,3 +127,13 @@ A implementação do `modelo-editor.html` foi recalibrada usando `modelo 1 isa(2
 - As cores permanecem restritas à paleta do PSD.
 - A exportação do Modelo 1 é sempre limitada ao canvas original de 1080 × 1920 px, inclusive PDF/PNG/JPG.
 - O armazenamento compartilhado usa `storage.js`; em HTTP/GitHub Pages persiste via localStorage e também replica o estado em `window.name` para navegação na mesma aba.
+
+
+## Modelo 1 — atualização PSD isa(3)
+
+- Informação adicional editável com o ícone original alinhado à primeira linha.
+- Título separado em dois campos: título e trecho em destaque.
+- Ícones dos boxes são enviados pelo usuário em SVG ou PNG; SVG é colorizado pela paleta do box e PNG funciona como máscara cromática.
+- Ícones do rodapé são os assets extraídos do PSD mais recente.
+- Salvamento do Modelo 1 aguarda IndexedDB e grava também em fallback local.
+- Exportação permanece limitada a 1080 × 1920 px, o tamanho original do PSD.
