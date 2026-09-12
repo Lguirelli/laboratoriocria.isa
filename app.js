@@ -24,7 +24,7 @@
   };
 
   const todayISO=()=>{const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
-  const newId=()=>crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;
+  const newId=()=>{try{if(globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function')return globalThis.crypto.randomUUID()}catch{}return `p-${Date.now()}-${Math.random().toString(36).slice(2,10)}`};
   const initialState=()=>({
     patientName:'Nome do paciente',
     medicines:[{id:newId(),name:'Nome do medicamento',usage:'Modo de uso'}],
@@ -53,10 +53,21 @@
   let lastLayout={medicineHeights:[],warningTop:2793};
   let saveTimer=null;
 
+  function storageAvailable(){
+    try{const key='__prescricao_storage_test__';localStorage.setItem(key,'1');localStorage.removeItem(key);return true}catch{return false}
+  }
+  const HAS_STORAGE=storageAvailable();
   function readProjects(){
+    if(!HAS_STORAGE)return [];
     try{const value=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}
   }
-  function writeProjects(items){localStorage.setItem(PROJECTS_KEY,JSON.stringify(items))}
+  function writeProjects(items){
+    if(!HAS_STORAGE)throw new Error('O armazenamento local não está disponível. Abra o projeto por um servidor HTTP ou GitHub Pages.');
+    localStorage.setItem(PROJECTS_KEY,JSON.stringify(items));
+    const check=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');
+    if(!Array.isArray(check)||check.length!==items.length)throw new Error('A gravação do projeto não pôde ser confirmada.');
+    return check;
+  }
   function findProject(id){return readProjects().find(item=>item.id===id)||null}
   function draftKey(){return currentProjectId?`${PROJECT_DRAFT_PREFIX}${currentProjectId}`:TEMPLATE_DRAFT_KEY}
   function cloneState(value){return JSON.parse(JSON.stringify(value))}
@@ -105,7 +116,8 @@
   let state=loadPersistedState();
   function persistState(){
     try{
-      localStorage.setItem(draftKey(),JSON.stringify({...state,version:3,savedAt:new Date().toISOString()}));
+      if(!HAS_STORAGE)throw new Error('storage unavailable');
+      localStorage.setItem(draftKey(),JSON.stringify({...state,version:4,savedAt:new Date().toISOString()}));
       updateDocumentTitle();
       if(els.autosaveStatus){els.autosaveStatus.textContent='Salvo automaticamente agora.';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{els.autosaveStatus.textContent='Alterações salvas automaticamente neste navegador.'},1300)}
     }catch(e){if(els.autosaveStatus)els.autosaveStatus.textContent='Não foi possível salvar localmente neste navegador.'}
@@ -174,6 +186,9 @@
   function fitStage(){const maxW=Math.max(280,els.stageViewport.clientWidth-56),maxH=Math.max(360,els.stageViewport.clientHeight-56),scale=Math.min(maxW/DESIGN.width,maxH/DESIGN.height,1);els.artboard.style.transform=`scale(${scale})`;els.stageSizer.style.width=`${DESIGN.width*scale}px`;els.stageSizer.style.height=`${DESIGN.height*scale}px`}
 
   function wire(){
+    // Ações de projeto são ligadas primeiro para não depender dos demais controles do editor.
+    if(els.saveProject)els.saveProject.addEventListener('click',saveProject);
+    if(els.duplicateProject)els.duplicateProject.addEventListener('click',duplicateProject);
     document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('is-active',t===tab));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panelContent===tab.dataset.panel))}));
     els.patientName.addEventListener('input',()=>{state.patientName=els.patientName.value;changed()});els.warningText.addEventListener('input',()=>{state.warning=els.warningText.value;changed()});
     els.addMedicine.addEventListener('click',()=>{state.medicines.push({id:newId(),name:'Novo medicamento',usage:'Modo de uso'});renderMedicineEditors();changed()});
@@ -183,7 +198,7 @@
     els.styleTarget.addEventListener('change',syncStyleControls);
     [['fontFamily','family'],['fontWeight','weight'],['fontSize','size'],['letterSpacing','letterSpacing'],['lineHeight','lineHeight'],['textColor','color']].forEach(([id,key])=>els[id].addEventListener('input',()=>{let v=els[id].value;if(['weight','size','letterSpacing','lineHeight'].includes(key))v=Number(v);state.typography[els.styleTarget.value][key]=v;syncStyleControls();changed()}));
     [['medicineGap','gap'],['boxPaddingX','paddingX'],['boxPaddingY','paddingY'],['boxRadius','radius']].forEach(([id,key])=>els[id].addEventListener('input',()=>{state.layout[key]=Number(els[id].value);syncLayoutControls();changed()}));
-    els.exportFormat.addEventListener('change',()=>{els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`});els.exportFile.addEventListener('click',exportCurrent);els.saveProject.addEventListener('click',saveProject);els.duplicateProject.addEventListener('click',duplicateProject);window.addEventListener('resize',fitStage);
+    els.exportFormat.addEventListener('change',()=>{els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`});els.exportFile.addEventListener('click',exportCurrent);window.addEventListener('resize',fitStage);
   }
 
   function textFont(t,scale=1){return `${t.weight} ${Math.round(t.size*scale)}px "${t.family}"`}
@@ -222,28 +237,59 @@
     const fmt=els.exportFormat.value,scale=Number(els.exportScale.value);els.exportFile.disabled=true;els.exportFile.textContent='Gerando…';
     try{const canvas=await renderCanvas(scale),base=`prescricao-${safeFilePart(patientLabel())}-${todayISO()}-${scale}x`;if(fmt==='png')downloadBlob(await canvasToBlob(canvas,'image/png',1),`${base}.png`);else if(fmt==='jpg')downloadBlob(await canvasToBlob(canvas,'image/jpeg',.96),`${base}.jpg`);else{const jpeg=dataUrlBytes(canvas.toDataURL('image/jpeg',.96));downloadBlob(makePdfFromJpeg(jpeg,canvas.width,canvas.height),`${base}.pdf`)}}catch(err){alert('Não foi possível gerar o arquivo. '+err.message)}finally{els.exportFile.disabled=false;els.exportFile.textContent=`Baixar ${fmt.toUpperCase()}`}
   }
+  function flashProjectButton(button,label){
+    if(!button)return;
+    const original=button.dataset.defaultLabel||button.textContent;
+    button.dataset.defaultLabel=original;button.textContent=label;button.classList.add('is-success');
+    clearTimeout(button._feedbackTimer);button._feedbackTimer=setTimeout(()=>{button.textContent=button.dataset.defaultLabel;button.classList.remove('is-success')},1600);
+  }
+  function persistProjectRecord(record){
+    const items=readProjects();
+    const index=items.findIndex(item=>item.id===record.id);
+    if(index>=0)items[index]=record;else items.unshift(record);
+    writeProjects(items);
+    const confirmed=findProject(record.id);
+    if(!confirmed)throw new Error('O projeto não apareceu no catálogo após a gravação.');
+    return confirmed;
+  }
   function saveProject(){
     try{
-      const now=new Date().toISOString(),items=readProjects();
+      const now=new Date().toISOString();
       if(!currentProjectId)currentProjectId=newId();
-      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:now,state:cloneState(state)};
-      const index=items.findIndex(item=>item.id===currentProjectId);
-      if(index>=0)items[index]=record;else items.unshift(record);
-      writeProjects(items);
-      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:3,savedAt:now}));
-      history.replaceState(null,'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
-      setProjectFeedback('Projeto salvo.');updateDocumentTitle();
-    }catch{setProjectFeedback('Não foi possível salvar o projeto.')}
+      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:now,updatedAt:now,state:cloneState(state)};
+      persistProjectRecord(record);
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));
+      history.replaceState({project:currentProjectId},'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
+      setProjectFeedback(`Salvo como “${record.title}”.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();
+      return currentProjectId;
+    }catch(err){
+      console.error('Falha ao salvar projeto',err);
+      setProjectFeedback(err?.message||'Não foi possível salvar o projeto.');
+      if(els.saveProject)flashProjectButton(els.saveProject,'Erro ao salvar');
+      return null;
+    }
   }
   function duplicateProject(){
     try{
-      const id=newId(),now=new Date().toISOString(),items=readProjects();
-      const record={id,template:'prescricao',title:projectTitle(true),patientName:patientLabel(),savedAt:now,state:cloneState(state)};
-      items.unshift(record);writeProjects(items);
-      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:3,savedAt:now}));
-      currentProjectId=id;history.replaceState(null,'',`editor.html?project=${encodeURIComponent(id)}`);
-      setProjectFeedback('Cópia criada. O projeto original foi preservado.');updateDocumentTitle();
-    }catch{setProjectFeedback('Não foi possível duplicar o projeto.')}
+      const sourceId=currentProjectId||saveProject();
+      if(!sourceId)throw new Error('Salve o projeto original antes de criar a cópia.');
+      const source=findProject(sourceId);
+      const id=newId(),now=new Date().toISOString();
+      const copyTitle=`Prescrição médica · ${patientLabel()} · Cópia`;
+      const record={id,template:'prescricao',title:copyTitle,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId,state:cloneState(state)};
+      persistProjectRecord(record);
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));
+      currentProjectId=id;
+      history.replaceState({project:id},'',`editor.html?project=${encodeURIComponent(id)}`);
+      setProjectFeedback(`Cópia criada. O original “${source?.title||projectTitle(false)}” foi preservado.`);
+      flashProjectButton(els.duplicateProject,'Cópia criada ✓');updateDocumentTitle();
+      return id;
+    }catch(err){
+      console.error('Falha ao duplicar projeto',err);
+      setProjectFeedback(err?.message||'Não foi possível duplicar o projeto.');
+      if(els.duplicateProject)flashProjectButton(els.duplicateProject,'Erro ao duplicar');
+      return null;
+    }
   }
   function tickDate(){if(state.stamp.autoDate){const now=todayISO();if(els.stampDate.value!==now){els.stampDate.value=now;state.stamp.date=now;persistState();renderPreview()}}}
   function init(){syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}

@@ -57,3 +57,6 @@ input[type=color]{width:100%;height:42px;padding:4px;border:1px solid var(--line
 .project-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .project-status{display:block;min-height:16px;text-align:center;color:var(--muted);font-size:11px;line-height:1.35}
 @media(max-width:430px){.project-actions{grid-template-columns:1fr}}
+
+.button.is-success{background:#dcebe3!important;color:#214d37!important;border-color:#bad7c6!important}
+.project-status{font-weight:600}

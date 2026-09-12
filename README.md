@@ -69,3 +69,11 @@ Arquivos da biblioteca:
 - Os arquivos exportados também incluem o nome do paciente no nome do arquivo.
 - O botão de backup JSON não faz mais parte da interface.
 - O botão **Adicionar medicamento** fica sempre após o último medicamento da fila.
+
+## Correção de persistência de projetos
+
+- **Salvar projeto** agora grava e confirma a leitura do registro antes de exibir sucesso.
+- **Duplicar** garante um original salvo, cria um novo ID independente e registra a origem da cópia.
+- O catálogo é renderizado novamente no evento `pageshow`, inclusive ao voltar pelo cache do navegador.
+- Os botões exibem feedback visual de sucesso ou erro.
+- Para persistência confiável, publique via GitHub Pages ou execute por servidor HTTP local; não dependa de abrir `editor.html` diretamente por `file://`.
