@@ -22,6 +22,7 @@
       <button class="tab is-active" data-panel="text">Textos</button>
       <button class="tab" data-panel="boxes">Boxes</button>
       <button class="tab" data-panel="list">Lista final</button>
+      <button class="tab" data-panel="cta">CTA</button>
       <button class="tab" data-panel="image">Imagem</button>
     </nav>
 
@@ -45,6 +46,10 @@
       <p class="helper">Cada linha mantém ícone e texto alinhados horizontalmente. Linhas podem ser adicionadas ou excluídas.</p>
       <div id="listEditors" class="box-editors"></div>
       <button id="addListItem" class="button add" type="button">+ Adicionar linha</button>
+    </section>
+
+    <section class="panel" data-panel-content="cta">
+      <div class="field rich-field"><span>CTA</span><div id="ctaText" class="rich-input rich-input-tall" contenteditable="true"></div><div class="rich-toolbar" data-toolbar-for="ctaText"></div><small>O CTA mantém distância constante do último box; a lista final mantém distância constante do CTA.</small></div>
     </section>
 
     <section class="panel" data-panel-content="image">
@@ -78,20 +83,20 @@
         <div id="imageMask" class="m2-image-mask" title="Arraste para reposicionar a imagem">
           <img id="previewImage" src="assets/modelo2/layer-6.png" alt="Imagem ilustrativa">
         </div>
-        <img class="fixed-layer m2-image-overlay-a" src="assets/modelo2/layer-5.png" alt="">
         <img class="fixed-layer m2-image-overlay-b" src="assets/modelo2/layer-7.png" alt="">
 
         <div id="previewBoxes" class="m2-boxes-stage"></div>
+        <div id="previewCta" class="m2-editable-cta"></div>
         <div id="previewList" class="m2-list-stage"></div>
         <div id="ctaBlock" class="m2-cta-block">
           <img class="m2-cta-bg" src="assets/modelo2/layer-21.png" alt="">
           <img class="m2-cta-title" src="assets/modelo2/layer-22.png" alt="Entre em contato">
           <img class="m2-cta-note" src="assets/modelo2/layer-23.png" alt="">
           <img class="m2-cta-phone" src="assets/modelo2/layer-24.png" alt="">
-          <img class="m2-cta-whatsapp" src="assets/modelo2/layer-25.png" alt="">
+          <span class="m2-footer-icon-mask m2-cta-whatsapp" style="--footer-mask:url('assets/modelo2/layer-25.png')" aria-hidden="true"></span>
           <img class="m2-cta-instagram-text" src="assets/modelo2/layer-26.png" alt="">
-          <img class="m2-cta-instagram" src="assets/modelo2/layer-27.png" alt="">
-          <img class="m2-cta-info" src="assets/modelo2/layer-28.png" alt="">
+          <span class="m2-footer-icon-mask m2-cta-instagram" style="--footer-mask:url('assets/modelo2/layer-27.png')" aria-hidden="true"></span>
+          <span class="m2-footer-icon-mask m2-cta-info" style="--footer-mask:url('assets/modelo2/layer-28.png')" aria-hidden="true"></span>
         </div>
       </article>
     </div>

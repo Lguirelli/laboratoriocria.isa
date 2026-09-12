@@ -34,6 +34,8 @@
 
       <div class="field rich-field"><span>Subtítulo</span><div id="subtitle" class="rich-input" contenteditable="true"></div><div class="rich-toolbar" data-toolbar-for="subtitle"></div><small>O primeiro box mantém sempre o mesmo espaço depois do final do subtítulo.</small></div>
 
+      <div class="field rich-field"><span>Título do body copy</span><div id="benefitTitle" class="rich-input" contenteditable="true"></div><div class="rich-toolbar" data-toolbar-for="benefitTitle"></div><small>Mantém distância constante do último box.</small></div>
+
       <div class="field rich-field"><span>Body copy</span><div id="bodyCopy" class="rich-input rich-input-tall" contenteditable="true"></div><div class="rich-toolbar" data-toolbar-for="bodyCopy"></div></div>
       <label class="switch"><input id="bodyIsList" type="checkbox"><span>Usar como lista e inserir ✓ em cada linha</span></label>
 
@@ -74,7 +76,7 @@
         <div id="previewBoxes" class="boxes-stage"></div>
 
         <div id="lowerFlow" class="lower-flow">
-          <img class="fixed-layer benefit-title-layer" src="assets/modelo1/layer-8.png" alt="">
+          <div id="previewBenefitTitle" class="editable-benefit-title"></div>
           <div id="previewBodyCopy" class="editable-body"></div>
 
           <div id="imageMask" class="image-mask" title="Arraste para reposicionar a imagem">
@@ -91,10 +93,10 @@
           <img class="fixed-layer footer-heading-layer" src="assets/modelo1/layer-19.png" alt="">
           <img class="fixed-layer footer-note-layer" src="assets/modelo1/layer-20.png" alt="">
           <img class="fixed-layer footer-whatsapp-text-layer" src="assets/modelo1/layer-21.png" alt="">
-          <img class="fixed-layer footer-whatsapp-icon-layer" src="assets/modelo1/layer-22.png" alt="">
+          <span class="footer-icon-mask footer-whatsapp-icon-layer" style="--footer-mask:url('assets/modelo1/layer-22.png')" aria-hidden="true"></span>
           <img class="fixed-layer footer-instagram-text-layer" src="assets/modelo1/layer-23.png" alt="">
-          <img class="fixed-layer footer-instagram-icon-layer" src="assets/modelo1/layer-24.png" alt="">
-          <img class="fixed-layer footer-info-icon-layer" src="assets/modelo1/layer-25.png" alt="">
+          <span class="footer-icon-mask footer-instagram-icon-layer" style="--footer-mask:url('assets/modelo1/layer-24.png')" aria-hidden="true"></span>
+          <span class="footer-icon-mask footer-info-icon-layer" style="--footer-mask:url('assets/modelo1/layer-25.png')" aria-hidden="true"></span>
         </div>
       </article>
     </div>

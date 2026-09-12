@@ -11,18 +11,18 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const defaultBox=()=>({titleHtml:'O que é?',bodyHtml:'É um procedimento minimamente invasivo que cria microperfurações controladas no couro cabeludo para estimular a regeneração tecidual e potencializar a absorção de ativos.',palette:'light',icon:{type:'asset',src:'assets/modelo2/layer-14.png',name:'Ícone original'}});
 const defaultList=()=>[
-  {textHtml:'Consulta com retorno incluso',icon:{type:'asset',src:'assets/modelo2/layer-20.png',name:'Retorno'}},
-  {textHtml:'Avenida João Gerosa, 175, segundo andar - Serra Negra, SP',icon:{type:'asset',src:'assets/modelo2/layer-18.png',name:'Localização'}},
-  {textHtml:'No momento, as formas de pagamentos são: <strong>PIX</strong> ou <strong>DINHEIRO</strong>',icon:{type:'asset',src:'assets/modelo2/layer-16.png',name:'Pagamento'}}
+  {textHtml:'Consulta com retorno incluso',iconColor:'#5B7E4E',icon:{type:'asset',src:'assets/modelo2/layer-20.png',name:'Retorno'}},
+  {textHtml:'Avenida João Gerosa, 175, segundo andar - Serra Negra, SP',iconColor:'#5B7E4E',icon:{type:'asset',src:'assets/modelo2/layer-18.png',name:'Localização'}},
+  {textHtml:'No momento, as formas de pagamentos são: <strong>PIX</strong> ou <strong>DINHEIRO</strong>',iconColor:'#5B7E4E',icon:{type:'asset',src:'assets/modelo2/layer-16.png',name:'Pagamento'}}
 ];
-const defaults={version:1,fileName:'Modelo 2',titleMainHtml:'Primeira',titleHighlightHtml:'Consulta',titleSize:78,titleAutoFit:true,subtitleHtml:'COM TRICOLOGISTA',boxes:[defaultBox()],listItems:defaultList(),image:{src:'assets/modelo2/layer-6.png',offsetX:0,offsetY:0,zoom:1}};
+const defaults={version:1,fileName:'Modelo 2',titleMainHtml:'Primeira',titleHighlightHtml:'Consulta',titleSize:78,titleAutoFit:true,subtitleHtml:'COM TRICOLOGISTA',boxes:[defaultBox()],listItems:defaultList(),ctaHtml:'Estou à disposição para esclarecer dúvidas e agendar seu atendimento.<br><strong>SERÁ UM PRAZER CUIDAR DA SUA SAÚDE!</strong>',image:{src:'assets/modelo2/layer-6.png',offsetX:0,offsetY:0,zoom:1}};
 function merge(a,b){const o=clone(a);for(const[k,v]of Object.entries(b||{})){if(Array.isArray(v))o[k]=clone(v);else if(v&&typeof v==='object'&&o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k]))o[k]=merge(o[k],v);else o[k]=v}return o}
-function migrate(x){x=merge(defaults,x||{});x.fileName='Modelo 2';x.boxes=(x.boxes||[defaultBox()]).map(b=>({...defaultBox(),...b,icon:b.icon&&typeof b.icon==='object'?b.icon:defaultBox().icon}));x.listItems=(x.listItems||defaultList()).map((it,i)=>({...defaultList()[i%3],...it,icon:it.icon&&typeof it.icon==='object'?it.icon:defaultList()[i%3].icon}));return x}
+function migrate(x){x=merge(defaults,x||{});x.fileName='Modelo 2';x.boxes=(x.boxes||[defaultBox()]).map(b=>({...defaultBox(),...b,icon:b.icon&&typeof b.icon==='object'?b.icon:defaultBox().icon}));x.listItems=(x.listItems||defaultList()).map((it,i)=>({...defaultList()[i%3],...it,iconColor:it.iconColor||defaultList()[i%3].iconColor||'#5B7E4E',icon:it.icon&&typeof it.icon==='object'?it.icon:defaultList()[i%3].icon}));return x}
 const projectKey=id=>`modelo2:project:${id}`,draftKey=()=>currentProjectId?projectKey(currentProjectId):'modelo2:draft';
 async function apiGetProject(id){try{const r=await fetch(`/api/projects/${encodeURIComponent(id)}`,{cache:'no-store'});if(!r.ok)return null;const j=await r.json();return j.project||null}catch{return null}}
 async function apiSaveProject(record){const r=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(record)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'Não foi possível gravar o projeto em projects/.');return j.project}
 const $=id=>document.getElementById(id);
-const els={titleMain:$('titleMain'),titleHighlight:$('titleHighlight'),titleSize:$('titleSize'),titleSizeOut:$('titleSizeOut'),titleAutoFit:$('titleAutoFit'),subtitle:$('subtitle'),boxEditors:$('boxEditors'),addBox:$('addBox'),listEditors:$('listEditors'),addListItem:$('addListItem'),imageUpload:$('imageUpload'),imageZoom:$('imageZoom'),imageZoomOut:$('imageZoomOut'),resetImage:$('resetImage'),exportFormat:$('exportFormat'),exportFile:$('exportFile'),saveProject:$('saveProject'),duplicateProject:$('duplicateProject'),projectFeedback:$('projectFeedback'),design:$('design'),stageWrap:document.querySelector('.stage-wrap'),previewTitle:$('previewTitle'),previewTitleMain:$('previewTitleMain'),previewTitleHighlight:$('previewTitleHighlight'),previewSubtitle:$('previewSubtitle'),previewBoxes:$('previewBoxes'),previewList:$('previewList'),ctaBlock:$('ctaBlock'),imageMask:$('imageMask'),previewImage:$('previewImage')};
+const els={titleMain:$('titleMain'),titleHighlight:$('titleHighlight'),titleSize:$('titleSize'),titleSizeOut:$('titleSizeOut'),titleAutoFit:$('titleAutoFit'),subtitle:$('subtitle'),ctaText:$('ctaText'),boxEditors:$('boxEditors'),addBox:$('addBox'),listEditors:$('listEditors'),addListItem:$('addListItem'),imageUpload:$('imageUpload'),imageZoom:$('imageZoom'),imageZoomOut:$('imageZoomOut'),resetImage:$('resetImage'),exportFormat:$('exportFormat'),exportFile:$('exportFile'),saveProject:$('saveProject'),duplicateProject:$('duplicateProject'),projectFeedback:$('projectFeedback'),design:$('design'),stageWrap:document.querySelector('.stage-wrap'),previewTitle:$('previewTitle'),previewTitleMain:$('previewTitleMain'),previewTitleHighlight:$('previewTitleHighlight'),previewSubtitle:$('previewSubtitle'),previewBoxes:$('previewBoxes'),previewCta:$('previewCta'),previewList:$('previewList'),ctaBlock:$('ctaBlock'),imageMask:$('imageMask'),previewImage:$('previewImage')};
 let state=clone(defaults);
 function readProjects(){return S?.getProjects?.()||[]}
 async function loadState(){await S?.ready;const repo=currentProjectId?await apiGetProject(currentProjectId):null;const projects=(await S?.getProjectsAsync?.())||readProjects();const p=repo||(currentProjectId?projects.find(x=>x.id===currentProjectId):null);const d=await S?.getAsync?.(draftKey(),null);state=migrate((p?.state)||d||defaults)}
@@ -33,34 +33,108 @@ function feedback(msg){els.projectFeedback.textContent=msg}
 function applyStyle(ed,prop,val,onChange){const r=savedRanges.get(ed);if(!r||r.collapsed){feedback('Selecione um trecho do texto primeiro.');return}const span=document.createElement('span');span.style[prop]=val;try{span.appendChild(r.extractContents());r.insertNode(span);const sel=getSelection();sel.removeAllRanges();const nr=document.createRange();nr.selectNodeContents(span);sel.addRange(nr);savedRanges.set(ed,nr.cloneRange());onChange(ed.innerHTML);commit()}catch(e){console.error(e)}}
 function toolbarHTML(){return `<div class="rt-colors">${PALETTE.map(([n,v])=>`<button type="button" class="rt-swatch" data-color="${v}" title="${n}" style="background:${v}"></button>`).join('')}</div><select class="rt-weight"><option value="400">Regular</option><option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option></select><select class="rt-size"><option value="14px">14</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="24px">24</option><option value="28px">28</option><option value="32px">32</option><option value="36px">36</option><option value="40px">40</option><option value="48px">48</option><option value="58px">58</option><option value="64px">64</option><option value="72px">72</option><option value="82px">82</option></select>`}
 function wireRich(ed,toolbar,onChange){toolbar.innerHTML=toolbarHTML();['mouseup','keyup','focus','input'].forEach(ev=>ed.addEventListener(ev,()=>{saveRange(ed);if(ev==='input'){onChange(ed.innerHTML);commit()}}));toolbar.querySelectorAll('.rt-swatch').forEach(b=>b.addEventListener('mousedown',e=>{e.preventDefault();applyStyle(ed,'color',b.dataset.color,onChange)}));const w=toolbar.querySelector('.rt-weight'),z=toolbar.querySelector('.rt-size');[w,z].forEach(x=>x.addEventListener('pointerdown',()=>saveRange(ed)));w.onchange=()=>applyStyle(ed,'fontWeight',w.value,onChange);z.onchange=()=>applyStyle(ed,'fontSize',z.value,onChange)}
-function wireStaticRich(){wireRich(els.titleMain,document.querySelector('[data-toolbar-for="titleMain"]'),v=>state.titleMainHtml=v);wireRich(els.titleHighlight,document.querySelector('[data-toolbar-for="titleHighlight"]'),v=>state.titleHighlightHtml=v);wireRich(els.subtitle,document.querySelector('[data-toolbar-for="subtitle"]'),v=>state.subtitleHtml=v)}
+function wireStaticRich(){wireRich(els.titleMain,document.querySelector('[data-toolbar-for="titleMain"]'),v=>state.titleMainHtml=v);wireRich(els.titleHighlight,document.querySelector('[data-toolbar-for="titleHighlight"]'),v=>state.titleHighlightHtml=v);wireRich(els.subtitle,document.querySelector('[data-toolbar-for="subtitle"]'),v=>state.subtitleHtml=v);wireRich(els.ctaText,document.querySelector('[data-toolbar-for="ctaText"]'),v=>state.ctaHtml=v)}
 
 async function persist(){state.updatedAt=new Date().toISOString();if(S?.setAsync)await S.setAsync(draftKey(),clone(state));else S?.set(draftKey(),clone(state));feedback(S?.persistent?'Alterações salvas automaticamente.':'Alterações preservadas nesta sessão.')}
 let persistTimer=null;function queuePersist(){clearTimeout(persistTimer);persistTimer=setTimeout(()=>persist(),180)}
 function commit(){renderPreview();queuePersist()}
-function syncInputs(){els.titleMain.innerHTML=state.titleMainHtml;els.titleHighlight.innerHTML=state.titleHighlightHtml;els.subtitle.innerHTML=state.subtitleHtml;els.titleSize.value=state.titleSize;els.titleSizeOut.textContent=state.titleSize+'px';els.titleAutoFit.checked=state.titleAutoFit;els.imageZoom.value=state.image.zoom;renderBoxEditors();renderListEditors()}
+function syncInputs(){els.titleMain.innerHTML=state.titleMainHtml;els.titleHighlight.innerHTML=state.titleHighlightHtml;els.subtitle.innerHTML=state.subtitleHtml;els.ctaText.innerHTML=state.ctaHtml;els.titleSize.value=state.titleSize;els.titleSizeOut.textContent=state.titleSize+'px';els.titleAutoFit.checked=state.titleAutoFit;els.imageZoom.value=state.image.zoom;renderBoxEditors();renderListEditors()}
 function colorizeSvg(svg){return String(svg||'').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi,'').replace(/\son\w+="[^"]*"/gi,'').replace(/\s(fill|stroke)="(?!none)[^"]*"/gi,' $1="currentColor"').replace('<svg','<svg class="uploaded-svg"')}
-function iconMarkup(icon){if(!icon)return '';if(icon.type==='svg')return colorizeSvg(icon.data);if(icon.type==='png')return `<span class="uploaded-icon-mask" style="--icon-mask:url('${icon.data}')"></span>`;return `<img src="${icon.src}" alt="">`}
+function iconMarkup(icon){if(!icon)return '';if(icon.type==='svg')return colorizeSvg(icon.data);const src=icon.data||icon.src;if(src)return `<span class="uploaded-icon-mask" style="--icon-mask:url('${src}')"></span>`;return ''}
 function readIconFile(file){return new Promise((resolve,reject)=>{const name=file.name||'Ícone';if(file.type==='image/svg+xml'||/\.svg$/i.test(name)){const r=new FileReader();r.onload=()=>resolve({type:'svg',data:r.result,name});r.onerror=reject;r.readAsText(file)}else if(file.type==='image/png'||/\.png$/i.test(name)){const r=new FileReader();r.onload=()=>resolve({type:'png',data:r.result,name});r.onerror=reject;r.readAsDataURL(file)}else reject(new Error('Envie um SVG ou PNG.'))})}
 function renderBoxEditors(){els.boxEditors.innerHTML='';state.boxes.forEach((box,index)=>{const w=document.createElement('section');w.className='box-editor';w.innerHTML=`<div class="box-editor-head"><strong>Box ${index+1}</strong><div class="icon-actions"><button type="button" class="mini duplicate">Duplicar</button>${state.boxes.length>1?'<button type="button" class="mini danger remove">Excluir</button>':''}</div></div><div class="field rich-field"><span>Título</span><div class="rich-input box-title" contenteditable="true"></div><div class="rich-toolbar title-toolbar"></div></div><div class="field rich-field"><span>Texto</span><div class="rich-input rich-input-tall box-body" contenteditable="true"></div><div class="rich-toolbar body-toolbar"></div></div><div class="palette-field"><span>Paleta do box</span><div class="palette-options"></div></div><label class="field icon-upload-field"><span>Ícone</span><input class="box-icon-file" type="file" accept=".svg,.png,image/svg+xml,image/png"><small>${esc(box.icon?.name||'Ícone original')}</small></label>`;const te=w.querySelector('.box-title'),be=w.querySelector('.box-body');te.innerHTML=box.titleHtml;be.innerHTML=box.bodyHtml;wireRich(te,w.querySelector('.title-toolbar'),v=>box.titleHtml=v);wireRich(be,w.querySelector('.body-toolbar'),v=>box.bodyHtml=v);const po=w.querySelector('.palette-options');Object.entries(BOX_PALETTES).forEach(([k,p])=>{const b=document.createElement('button');b.type='button';b.className='palette-card'+(box.palette===k?' is-selected':'');b.innerHTML=`<span class="palette-preview"><i style="background:${p.bg}"></i><i style="background:${p.title}"></i><i style="background:${p.text}"></i></span>${p.name}`;b.onclick=()=>{box.palette=k;renderBoxEditors();commit()};po.appendChild(b)});w.querySelector('.box-icon-file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{box.icon=await readIconFile(f);renderBoxEditors();commit()}catch(err){alert(err.message)}};w.querySelector('.duplicate').onclick=()=>{state.boxes.splice(index+1,0,clone(box));renderBoxEditors();commit()};w.querySelector('.remove')?.addEventListener('click',()=>{state.boxes.splice(index,1);renderBoxEditors();commit()});els.boxEditors.appendChild(w)})}
-function renderListEditors(){els.listEditors.innerHTML='';state.listItems.forEach((item,index)=>{const w=document.createElement('section');w.className='list-editor';w.innerHTML=`<div class="list-editor-head"><strong>Linha ${index+1}</strong>${state.listItems.length>1?'<button type="button" class="mini danger remove">Excluir</button>':''}</div><div class="field rich-field"><span>Texto</span><div class="rich-input list-text" contenteditable="true"></div><div class="rich-toolbar list-toolbar"></div></div><label class="field icon-upload-field"><span>Ícone da linha</span><input class="list-icon-file" type="file" accept=".svg,.png,image/svg+xml,image/png"><small>${esc(item.icon?.name||'Ícone')}</small></label>`;const te=w.querySelector('.list-text');te.innerHTML=item.textHtml;wireRich(te,w.querySelector('.list-toolbar'),v=>item.textHtml=v);w.querySelector('.list-icon-file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{item.icon=await readIconFile(f);renderListEditors();commit()}catch(err){alert(err.message)}};w.querySelector('.remove')?.addEventListener('click',()=>{state.listItems.splice(index,1);renderListEditors();commit()});els.listEditors.appendChild(w)})}
+function renderListEditors(){
+  els.listEditors.innerHTML='';
+  state.listItems.forEach((item,index)=>{
+    const w=document.createElement('section');
+    w.className='list-editor';
+    w.innerHTML=`<div class="list-editor-head"><strong>Linha ${index+1}</strong>${state.listItems.length>1?'<button type="button" class="mini danger remove">Excluir</button>':''}</div>
+      <div class="field rich-field"><span>Texto</span><div class="rich-input list-text" contenteditable="true"></div><div class="rich-toolbar list-toolbar"></div></div>
+      <div class="palette-field"><span>Cor do ícone</span><div class="swatches list-icon-colors"></div></div>
+      <label class="field icon-upload-field"><span>Ícone da linha</span><input class="list-icon-file" type="file" accept=".svg,.png,image/svg+xml,image/png"><small>${esc(item.icon?.name||'Ícone')}</small></label>`;
+    const te=w.querySelector('.list-text');te.innerHTML=item.textHtml;
+    wireRich(te,w.querySelector('.list-toolbar'),v=>item.textHtml=v);
+    const colors=w.querySelector('.list-icon-colors');
+    PALETTE.forEach(([name,value])=>{
+      const b=document.createElement('button');b.type='button';b.className='swatch'+(item.iconColor===value?' is-selected':'');b.title=name;b.style.background=value;
+      b.onclick=()=>{item.iconColor=value;renderListEditors();commit()};colors.appendChild(b);
+    });
+    w.querySelector('.list-icon-file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{item.icon=await readIconFile(f);renderListEditors();commit()}catch(err){alert(err.message)}};
+    w.querySelector('.remove')?.addEventListener('click',()=>{state.listItems.splice(index,1);renderListEditors();commit()});
+    els.listEditors.appendChild(w);
+  });
+}
 function fitTitle(){let z=state.titleSize;els.previewTitle.style.fontSize=z+'px';if(state.titleAutoFit){while(z>34&&(els.previewTitle.scrollHeight>223||els.previewTitle.scrollWidth>els.previewTitle.clientWidth)){z--;els.previewTitle.style.fontSize=z+'px'}}}
-function renderPreview(){els.previewTitleMain.innerHTML=state.titleMainHtml;els.previewTitleHighlight.innerHTML=state.titleHighlightHtml;els.previewSubtitle.innerHTML=state.subtitleHtml;els.previewTitle.style.fontSize=state.titleSize+'px';fitTitle();els.previewBoxes.innerHTML='';state.boxes.forEach(box=>{const p=BOX_PALETTES[box.palette]||BOX_PALETTES.light,d=document.createElement('section');d.className='m2-design-box';d.style.background=p.bg;d.innerHTML=`<div class="m2-design-box-icon-wrap" style="background:${p.circle};color:${p.icon}">${iconMarkup(box.icon)}</div><div class="m2-design-box-copy"><h3 style="color:${p.title}">${box.titleHtml}</h3><div class="box-body-preview" style="color:${p.text}">${box.bodyHtml}</div></div>`;els.previewBoxes.appendChild(d)});els.previewList.innerHTML='';state.listItems.forEach(item=>{const row=document.createElement('div');row.className='m2-list-row';row.innerHTML=`<span class="m2-list-icon">${iconMarkup(item.icon)}</span><span class="m2-list-text">${item.textHtml}</span>`;els.previewList.appendChild(row)});els.previewImage.src=state.image.src;els.previewImage.style.transform=`translate(${state.image.offsetX}px,${state.image.offsetY}px) scale(${state.image.zoom})`;els.imageZoomOut.textContent=Math.round(state.image.zoom*100)+'%';requestAnimationFrame(layoutFlow)}
+function renderPreview(){
+  els.previewTitleMain.innerHTML=state.titleMainHtml;
+  els.previewTitleHighlight.innerHTML=state.titleHighlightHtml;
+  els.previewSubtitle.innerHTML=state.subtitleHtml;
+  els.previewCta.innerHTML=state.ctaHtml;
+  els.previewTitle.style.fontSize=state.titleSize+'px';
+  fitTitle();
+
+  els.previewBoxes.innerHTML='';
+  state.boxes.forEach(box=>{
+    const p=BOX_PALETTES[box.palette]||BOX_PALETTES.light,d=document.createElement('section');
+    d.className='m2-design-box';d.style.background=p.bg;
+    d.innerHTML=`<div class="m2-design-box-icon-wrap" style="background:${p.circle};color:${p.icon}">${iconMarkup(box.icon)}</div><div class="m2-design-box-copy"><h3 style="color:${p.title}">${box.titleHtml}</h3><div class="box-body-preview" style="color:${p.text}">${box.bodyHtml}</div></div>`;
+    els.previewBoxes.appendChild(d);
+  });
+
+  els.previewList.innerHTML='';
+  state.listItems.forEach(item=>{
+    const row=document.createElement('div');row.className='m2-list-row';
+    row.style.setProperty('--list-icon-color',item.iconColor||'#5B7E4E');
+    row.innerHTML=`<span class="m2-list-icon">${iconMarkup(item.icon)}</span><span class="m2-list-text">${item.textHtml}</span>`;
+    els.previewList.appendChild(row);
+  });
+
+  els.previewImage.src=state.image.src;
+  els.previewImage.style.transform=`translate(${state.image.offsetX}px,${state.image.offsetY}px) scale(${state.image.zoom})`;
+  els.imageZoomOut.textContent=Math.round(state.image.zoom*100)+'%';
+  requestAnimationFrame(layoutFlow);
+}
 function layoutFlow(){
-  // Preserve the PSD's lower composition. Dynamic boxes compact inside the original 266 px box zone.
-  const boxes=[...els.previewBoxes.children];boxes.forEach(n=>{n.style.transform='none';n.style.top='0px'});
-  const heights=boxes.map(n=>n.offsetHeight||266),gap=26,target=266;
-  const natural=heights.reduce((a,b)=>a+b,0)+Math.max(0,boxes.length-1)*gap;
-  const scale=natural?Math.min(1,target/natural):1;let y=0;
-  boxes.forEach((n,i)=>{n.style.top=y+'px';n.style.transform=`scale(${scale})`;n.style.transformOrigin='top left';n.style.width=(953/scale)+'px';y+=heights[i]*scale+(i<boxes.length-1?gap*scale:0)});
-  els.previewBoxes.style.height=target+'px';els.previewBoxes.dataset.scale=scale.toFixed(3);
-  // Final list occupies its original band; more rows compact while preserving icon/text horizontal alignment.
-  const rows=[...els.previewList.children];rows.forEach(r=>r.style.transform='none');
-  const rowHeights=rows.map(r=>Math.max(39,r.offsetHeight||39)),listGap=14,listTarget=140;
-  const listNatural=rowHeights.reduce((a,b)=>a+b,0)+Math.max(0,rows.length-1)*listGap;
-  const listScale=listNatural?Math.min(1,listTarget/listNatural):1;let ly=0;
-  rows.forEach((r,i)=>{r.style.position='absolute';r.style.top=ly+'px';r.style.left='0';r.style.width=(800/listScale)+'px';r.style.transform=`scale(${listScale})`;r.style.transformOrigin='top left';ly+=rowHeights[i]*listScale+(i<rows.length-1?listGap*listScale:0)});
-  if(scale<.48)feedback('Há muitos boxes para a área original do PSD. Eles foram compactados para manter o arquivo em 1080 × 1920.');
+  const BOX_TOP=644, BOX_TARGET=266, BOX_GAP=26;
+  const CTA_GAP=549, LIST_GAP=44, FOOTER_SAFE_TOP=1751;
+
+  const boxes=[...els.previewBoxes.children];
+  boxes.forEach(n=>{n.style.setProperty('--box-scale','1');n.style.top='0px';n.style.width='953px'});
+  let naturalHeights=boxes.map(n=>n.offsetHeight||266);
+  let natural=naturalHeights.reduce((a,b)=>a+b,0)+Math.max(0,boxes.length-1)*BOX_GAP;
+  const density=natural?Math.max(.42,Math.min(1,BOX_TARGET/natural)):1;
+  boxes.forEach(n=>n.style.setProperty('--box-scale',String(density)));
+  const heights=boxes.map(n=>n.offsetHeight||266*density);
+  const boxGap=BOX_GAP*density;
+  let y=0;
+  boxes.forEach((n,i)=>{n.style.top=y+'px';y+=heights[i];if(i<boxes.length-1)y+=boxGap});
+  els.previewBoxes.style.height=y+'px';
+  els.previewBoxes.dataset.scale=density.toFixed(3);
+
+  // CTA follows the final box at a fixed physical distance.
+  const boxBottom=BOX_TOP+y;
+  const ctaTop=boxBottom+CTA_GAP;
+  els.previewCta.style.top=ctaTop+'px';
+  const ctaHeight=Math.max(67,els.previewCta.offsetHeight||67);
+
+  // Final list always follows the CTA at a fixed distance.
+  const listTop=ctaTop+ctaHeight+LIST_GAP;
+  els.previewList.style.top=listTop+'px';
+  const rows=[...els.previewList.children];
+  rows.forEach(r=>{r.style.setProperty('--list-scale','1');r.style.transform='none'});
+  const LIST_BASE_GAP=14;
+  const available=Math.max(60,FOOTER_SAFE_TOP-listTop-18);
+  let rowHeights=rows.map(r=>Math.max(39,r.offsetHeight||39));
+  let listNatural=rowHeights.reduce((a,b)=>a+b,0)+Math.max(0,rows.length-1)*LIST_BASE_GAP;
+  const listDensity=listNatural?Math.max(.55,Math.min(1,available/listNatural)):1;
+  rows.forEach(r=>r.style.setProperty('--list-scale',String(listDensity)));
+  rowHeights=rows.map(r=>Math.max(39*listDensity,r.offsetHeight||39*listDensity));
+  const listGap=LIST_BASE_GAP*listDensity;
+  let ly=0;
+  rows.forEach((r,i)=>{r.style.top=ly+'px';r.style.left='0';r.style.width='800px';ly+=rowHeights[i]+(i<rows.length-1?listGap:0)});
+
+  if(density<=.42&&natural>BOX_TARGET)feedback('Há muitos boxes para a área segura. A altura e os elementos internos foram compactados, mantendo a largura original.');
+  else if(listDensity<=.55&&listNatural>available)feedback('A lista final foi compactada verticalmente para preservar o rodapé dentro de 1080 × 1920.');
   updateScale();
 }
 function updateScale(){const sc=Math.min((els.stageWrap.clientWidth||720)/1080,1);els.design.style.transform=`scale(${sc})`;els.stageWrap.style.height=1920*sc+'px'}
@@ -72,7 +146,7 @@ function safeName(s){return String(s||'Modelo 2').normalize('NFD').replace(/[\u0
 function fileToResizedDataURL(file,max){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.9))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
 async function handleImageUpload(e){const f=e.target.files?.[0];if(!f)return;state.image={src:await fileToResizedDataURL(f,1400),offsetX:0,offsetY:0,zoom:1};els.imageZoom.value=1;commit()}
 function wireImageDrag(){let d=null;els.imageMask.onpointerdown=e=>{d={x:e.clientX,y:e.clientY,ox:state.image.offsetX,oy:state.image.offsetY};els.imageMask.setPointerCapture(e.pointerId)};els.imageMask.onpointermove=e=>{if(!d)return;const sc=els.design.getBoundingClientRect().width/1080||1;state.image.offsetX=d.ox+(e.clientX-d.x)/sc;state.image.offsetY=d.oy+(e.clientY-d.y)/sc;renderPreview()};els.imageMask.onpointerup=els.imageMask.onpointercancel=()=>{if(d){d=null;queuePersist()}}}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('is-active',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panelContent===b.dataset.panel))});els.titleSize.oninput=e=>{state.titleSize=+e.target.value;els.titleSizeOut.textContent=e.target.value+'px';commit()};els.titleAutoFit.onchange=e=>{state.titleAutoFit=e.target.checked;commit()};els.imageZoom.oninput=e=>{state.image.zoom=+e.target.value;commit()};els.addBox.onclick=()=>{state.boxes.push(defaultBox());renderBoxEditors();commit()};els.addListItem.onclick=()=>{state.listItems.push({textHtml:'Nova informação',icon:{type:'asset',src:'assets/modelo2/layer-28.png',name:'Informação'}});renderListEditors();commit()};els.resetImage.onclick=()=>{state.image.offsetX=0;state.image.offsetY=0;state.image.zoom=1;els.imageZoom.value=1;commit()};els.imageUpload.onchange=handleImageUpload;els.saveProject.onclick=saveProject;els.duplicateProject.onclick=duplicateProject;els.exportFormat.onchange=()=>els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`;els.exportFile.onclick=exportFile;addEventListener('resize',updateScale);wireImageDrag();wireStaticRich()}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('is-active',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panelContent===b.dataset.panel))});els.titleSize.oninput=e=>{state.titleSize=+e.target.value;els.titleSizeOut.textContent=e.target.value+'px';commit()};els.titleAutoFit.onchange=e=>{state.titleAutoFit=e.target.checked;commit()};els.imageZoom.oninput=e=>{state.image.zoom=+e.target.value;commit()};els.addBox.onclick=()=>{state.boxes.push(defaultBox());renderBoxEditors();commit()};els.addListItem.onclick=()=>{state.listItems.push({textHtml:'Nova informação',iconColor:'#5B7E4E',icon:{type:'asset',src:'assets/modelo2/layer-28.png',name:'Informação'}});renderListEditors();commit()};els.resetImage.onclick=()=>{state.image.offsetX=0;state.image.offsetY=0;state.image.zoom=1;els.imageZoom.value=1;commit()};els.imageUpload.onchange=handleImageUpload;els.saveProject.onclick=saveProject;els.duplicateProject.onclick=duplicateProject;els.exportFormat.onchange=()=>els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`;els.exportFile.onclick=exportFile;addEventListener('resize',updateScale);wireImageDrag();wireStaticRich()}
 async function blobDataURL(url){if(/^data:/.test(url))return url;const r=await fetch(url);const b=await r.blob();return await new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)})}
 async function renderCanvas(){await document.fonts.ready;const cloneNode=els.design.cloneNode(true);cloneNode.style.transform='none';cloneNode.style.width='1080px';cloneNode.style.height='1920px';cloneNode.style.position='relative';const imgs=[...cloneNode.querySelectorAll('img')];await Promise.all(imgs.map(async i=>{try{i.src=await blobDataURL(i.getAttribute('src'))}catch{}}));const css=[...document.styleSheets].map(ss=>{try{return [...ss.cssRules].map(r=>r.cssText).join('\n')}catch{return''}}).join('\n');const html=new XMLSerializer().serializeToString(cloneNode),svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"><foreignObject width="1080" height="1920"><div xmlns="http://www.w3.org/1999/xhtml"><style>${css}</style>${html}</div></foreignObject></svg>`;const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));try{const im=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=rej;x.src=url});const c=document.createElement('canvas');c.width=1080;c.height=1920;c.getContext('2d').drawImage(im,0,0);return c}finally{URL.revokeObjectURL(url)}}
 function toBlob(c,t,q){return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('Falha ao exportar')),t,q))}

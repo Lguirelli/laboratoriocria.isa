@@ -200,3 +200,13 @@ Arquivos principais:
 - `modelo2-styles.css`
 - `assets/modelo2/`
 - `assets/images/modelo2-preview.png`
+
+## Ajustes v8
+
+- largura dos boxes dos Modelos 1 e 2 permanece fixa; apenas altura/densidade e elementos internos se adaptam;
+- Modelo 1: “Principais benefícios” é editável e mantém distância constante do último box; checks da lista são vetoriais;
+- Modelo 2: CTA editável, com distância constante do último box; lista final mantém distância constante do CTA;
+- Modelo 2: PNGs de ícone são usados como máscara e SVGs recebem `currentColor`, com cores limitadas à paleta;
+- ícones do rodapé são máscaras sempre brancas;
+- Modelo 2: a imagem ilustrativa usa a própria camada de máscara do PSD;
+- index usa somente o logo dos modelos no cabeçalho e deduplica modelos pelo ID.

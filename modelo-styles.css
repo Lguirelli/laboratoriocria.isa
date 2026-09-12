@@ -36,3 +36,26 @@
 /* Responsive box stack: JS scales whole cards uniformly when the list grows. */
 .boxes-stage{display:block;position:absolute}
 .design-box{position:absolute;left:0;top:0;transform-origin:top center;will-change:transform}
+
+/* v8 — flow rules shared by Modelo 1 and Modelo 2 */
+.design-box{
+  --box-scale:1;
+  width:954px !important;
+  min-height:calc(265px * var(--box-scale));
+  padding-top:calc(29px * var(--box-scale));
+  padding-bottom:calc(29px * var(--box-scale));
+  padding-left:29px;
+  padding-right:29px;
+  gap:calc(23px * var(--box-scale));
+  transform:none !important;
+  transform-origin:initial !important;
+}
+.design-box-icon-wrap{width:calc(178px * var(--box-scale));height:calc(178px * var(--box-scale));}
+.design-box-icon-wrap img,.design-box-icon-wrap svg,.design-box-icon-wrap .uploaded-icon-mask{width:calc(94px * var(--box-scale));height:calc(94px * var(--box-scale));}
+.design-box-copy h3{font-size:calc(36px * var(--box-scale));margin-bottom:calc(35px * var(--box-scale));}
+.design-box-copy .box-body-preview{font-size:calc(18px * var(--box-scale));line-height:1.18}
+.editable-benefit-title{position:absolute;left:107px;top:1127px;width:470px;min-height:60px;font-family:'Cormorant Garamond',serif;font-size:38px;line-height:1.05;font-weight:600;color:#014744;pointer-events:auto}
+.body-line{grid-template-columns:22px minmax(0,1fr);gap:7px;align-items:start}
+.body-check{width:18px;height:18px;margin-top:1px;color:#5B7E4E;display:block}
+.body-check svg{display:block;width:100%;height:100%}
+.footer-icon-mask{position:absolute;display:block;background:#fff;-webkit-mask-image:var(--footer-mask);mask-image:var(--footer-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;pointer-events:none}

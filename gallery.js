@@ -6,7 +6,8 @@
   const archivedGroup=document.getElementById('archivedGroup');
   const tpl=document.getElementById('templateCard');
   const toast=document.getElementById('toast');
-  const templates=Array.isArray(window.EDITABLE_TEMPLATES)?window.EDITABLE_TEMPLATES:[];
+  const rawTemplates=Array.isArray(window.EDITABLE_TEMPLATES)?window.EDITABLE_TEMPLATES:[];
+  const templates=[...new Map(rawTemplates.map(item=>[item.id,item])).values()];
   const S=window.ProjectStorage;
   let toastTimer;
 
