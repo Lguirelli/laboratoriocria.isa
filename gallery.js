@@ -1,13 +1,10 @@
 (() => {
   'use strict';
-  const PROJECTS_KEY = 'prescricao-editor:projects:v1';
   const grid = document.getElementById('templateGrid');
   const tpl = document.getElementById('templateCard');
   const templates = Array.isArray(window.EDITABLE_TEMPLATES) ? window.EDITABLE_TEMPLATES : [];
 
-  function readProjects(){
-    try{const value=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}
-  }
+  function readProjects(){ return window.ProjectStorage?.getProjects?.() || []; }
   function formatSavedDate(iso){
     const d=iso?new Date(iso):new Date();
     if(Number.isNaN(d.getTime()))return '';

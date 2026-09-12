@@ -118,3 +118,12 @@ A implementação do `modelo-editor.html` foi recalibrada usando `modelo 1 isa(2
 - Título possui tamanho máximo editável e ajuste automático para caber na largura original.
 - A imagem ilustrativa aceita upload e reposicionamento por arraste, preservando a máscara e a posição do recorte.
 - Rodapé, logotipo e demais camadas não mencionadas permanecem fixos e usam os assets extraídos do PSD, inclusive os ícones originais.
+
+## Atualização de tipografia e edição parcial
+
+- Títulos editáveis usam a família Cormorant Garamond fornecida com o projeto.
+- Textos corridos, subtítulos e body copy dos blocos usam Montserrat.
+- Campos de texto são rich text: selecione um trecho e aplique cor, peso ou tamanho somente à seleção.
+- As cores permanecem restritas à paleta do PSD.
+- A exportação do Modelo 1 é sempre limitada ao canvas original de 1080 × 1920 px, inclusive PDF/PNG/JPG.
+- O armazenamento compartilhado usa `storage.js`; em HTTP/GitHub Pages persiste via localStorage e também replica o estado em `window.name` para navegação na mesma aba.

@@ -24,20 +24,17 @@
     </nav>
 
     <section class="panel is-active" data-panel-content="text">
-      <label class="field"><span>Título</span><textarea id="title" rows="2"></textarea></label>
+      <div class="field rich-field"><span>Título</span><div id="title" class="rich-input" contenteditable="true" data-rich="title"></div><div class="rich-toolbar" data-toolbar-for="title"></div></div>
       <div class="two-cols">
         <label class="field"><span>Tamanho máximo</span><input id="titleSize" type="range" min="36" max="72" step="1"><output id="titleSizeOut"></output></label>
         <label class="switch compact"><input id="titleAutoFit" type="checkbox"><span>Ajuste automático</span></label>
       </div>
-      <div class="palette-field"><span>Cor do título</span><div id="titleColor" class="swatches"></div></div>
-      <div class="palette-field"><span>Cor de destaque</span><div id="titleAccentColor" class="swatches"></div></div>
+      <small class="helper rich-help">Selecione um trecho para alterar cor, peso ou tamanho.</small>
 
-      <label class="field"><span>Subtítulo</span><textarea id="subtitle" rows="3"></textarea><small>O box mantém uma distância física constante após o fim do subtítulo.</small></label>
-      <div class="palette-field"><span>Cor do subtítulo</span><div id="subtitleColor" class="swatches"></div></div>
+      <div class="field rich-field"><span>Subtítulo</span><div id="subtitle" class="rich-input" contenteditable="true" data-rich="subtitle"></div><div class="rich-toolbar" data-toolbar-for="subtitle"></div><small>O box mantém uma distância física constante após o fim do subtítulo.</small></div>
 
-      <label class="field"><span>Body copy</span><textarea id="bodyCopy" rows="9"></textarea></label>
+      <div class="field rich-field"><span>Body copy</span><div id="bodyCopy" class="rich-input rich-input-tall" contenteditable="true" data-rich="bodyCopy"></div><div class="rich-toolbar" data-toolbar-for="bodyCopy"></div></div>
       <label class="switch"><input id="bodyIsList" type="checkbox"><span>Usar como lista e inserir ✓ em cada linha</span></label>
-      <div class="palette-field"><span>Cor do body copy</span><div id="bodyColor" class="swatches"></div></div>
     </section>
 
     <section class="panel" data-panel-content="boxes">
@@ -98,6 +95,7 @@
     </div>
   </main>
 </div>
+<script src="storage.js"></script>
 <script src="modelo-app.js"></script>
 </body>
 </html>

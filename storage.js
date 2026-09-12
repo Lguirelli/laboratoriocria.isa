@@ -1,83 +1,36 @@
 (() => {
   'use strict';
-  const DB_NAME = 'editable-files-studio';
-  const STORE = 'keyval';
-  const DB_VERSION = 1;
-  const cache = new Map();
-  let db = null;
-  let mode = 'memory';
-  let ready = false;
-
-  function lsAvailable(){
-    try{const k='__studio_storage_test__';localStorage.setItem(k,'1');localStorage.removeItem(k);return true}catch{return false}
+  const NS='psd-editor-store:v3';
+  const NAME_PREFIX='__PSD_EDITOR_STATE__:';
+  let memory={};
+  function parse(x,fallback){try{const v=JSON.parse(x);return v==null?fallback:v}catch{return fallback}}
+  function readWindowName(){
+    if(!window.name || !window.name.startsWith(NAME_PREFIX)) return {};
+    return parse(window.name.slice(NAME_PREFIX.length),{});
   }
-  function openDb(){
-    return new Promise((resolve,reject)=>{
-      if(!('indexedDB' in window)) return reject(new Error('IndexedDB indisponível'));
-      const req=indexedDB.open(DB_NAME,DB_VERSION);
-      req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE)};
-      req.onsuccess=()=>resolve(req.result);
-      req.onerror=()=>reject(req.error||new Error('Falha ao abrir IndexedDB'));
-      req.onblocked=()=>reject(new Error('IndexedDB bloqueado'));
-    });
+  function writeWindowName(bundle){try{window.name=NAME_PREFIX+JSON.stringify(bundle)}catch{}}
+  function canLocal(){try{const k='__store_test__';localStorage.setItem(k,'1');localStorage.removeItem(k);return true}catch{return false}}
+  const localOK=canLocal();
+  function readBundle(){
+    let b={};
+    if(localOK) b=parse(localStorage.getItem(NS),{});
+    const w=readWindowName();
+    // window.name bridges separate file:// pages in the same tab; localStorage wins by timestamp per key.
+    return {...w,...b,...memory};
   }
-  function loadAllFromDb(){
-    return new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE,'readonly'),store=tx.objectStore(STORE);
-      const keysReq=store.getAllKeys(), valsReq=store.getAll();
-      tx.oncomplete=()=>{const keys=keysReq.result||[],vals=valsReq.result||[];keys.forEach((k,i)=>cache.set(String(k),String(vals[i]??'')));resolve()};
-      tx.onerror=()=>reject(tx.error);
-    });
+  function writeBundle(b){
+    memory={...b};
+    if(localOK){try{localStorage.setItem(NS,JSON.stringify(b))}catch{}}
+    writeWindowName(b);
   }
-  function idbPut(key,value){
-    if(!db)return Promise.resolve();
-    return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(String(value),String(key));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  function get(key,fallback=null){const b=readBundle();return Object.prototype.hasOwnProperty.call(b,key)?b[key]:fallback}
+  function set(key,value){const b=readBundle();b[key]=value;writeBundle(b);return value}
+  function remove(key){const b=readBundle();delete b[key];writeBundle(b)}
+  function getProjects(){const x=get('projects',[]);return Array.isArray(x)?x:[]}
+  function setProjects(items){set('projects',Array.isArray(items)?items:[]);return getProjects()}
+  function mode(){return localOK?'localStorage + window.name':'window.name (sessão desta aba)'}
+  if(localOK && !get('projects',null)){
+    try{const legacy=JSON.parse(localStorage.getItem('prescricao-editor:projects:v1')||'null');if(Array.isArray(legacy))set('projects',legacy)}catch{}
   }
-  function idbDelete(key){
-    if(!db)return Promise.resolve();
-    return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(String(key));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
-  }
-  async function migrateLocalStorage(){
-    if(!lsAvailable())return;
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i); if(!k||cache.has(k))continue;
-      const v=localStorage.getItem(k); if(v!=null){cache.set(k,v);try{await idbPut(k,v)}catch{}}
-    }
-  }
-  async function init(){
-    if(ready)return api;
-    try{
-      db=await openDb();
-      await loadAllFromDb();
-      mode='indexedDB';
-      await migrateLocalStorage();
-    }catch(e){
-      if(lsAvailable()){
-        mode='localStorage';
-        for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k){const v=localStorage.getItem(k);if(v!=null)cache.set(k,v)}}
-      } else mode='memory';
-    }
-    ready=true;
-    window.dispatchEvent(new CustomEvent('appstorage-ready',{detail:{mode}}));
-    return api;
-  }
-  function getItem(key){return cache.has(String(key))?cache.get(String(key)):null}
-  function setItem(key,value){
-    key=String(key);value=String(value);cache.set(key,value);
-    if(mode==='indexedDB') idbPut(key,value).catch(e=>console.error(e));
-    else if(mode==='localStorage'){try{localStorage.setItem(key,value)}catch(e){console.error(e)}}
-    window.dispatchEvent(new CustomEvent('appstorage-change',{detail:{key}}));
-  }
-  function removeItem(key){
-    key=String(key);cache.delete(key);
-    if(mode==='indexedDB')idbDelete(key).catch(e=>console.error(e));
-    else if(mode==='localStorage'){try{localStorage.removeItem(key)}catch(e){console.error(e)}}
-    window.dispatchEvent(new CustomEvent('appstorage-change',{detail:{key}}));
-  }
-  async function flush(){
-    if(mode!=='indexedDB'||!db)return;
-    await new Promise(resolve=>{const tx=db.transaction(STORE,'readonly');tx.oncomplete=resolve;tx.onerror=resolve;tx.objectStore(STORE).count()});
-  }
-  const api={init,getItem,setItem,removeItem,flush,get mode(){return mode},get persistent(){return mode==='indexedDB'||mode==='localStorage'}};
-  window.AppStorage=api;
+  window.ProjectStorage={get,set,remove,getProjects,setProjects,mode,persistent:localOK};
 })();
