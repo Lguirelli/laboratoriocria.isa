@@ -58,3 +58,14 @@ Arquivos da biblioteca:
 - `templates.js` — catálogo de templates;
 - `editor.html` — editor da prescrição;
 - `app.js` — lógica do editor.
+
+
+## Projetos salvos
+
+- O editor mantém um rascunho automático no `localStorage`, inclusive após recarregar ou fechar a página.
+- **Salvar projeto** registra uma versão no catálogo da página inicial.
+- O título do projeto salvo inclui o nome do paciente, por exemplo `Prescrição médica · Maria Silva`.
+- **Duplicar** cria um novo projeto independente e preserva o projeto original.
+- Os arquivos exportados também incluem o nome do paciente no nome do arquivo.
+- O botão de backup JSON não faz mais parte da interface.
+- O botão **Adicionar medicamento** fica sempre após o último medicamento da fila.

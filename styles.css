@@ -52,3 +52,8 @@ input[type=color]{width:100%;height:42px;padding:4px;border:1px solid var(--line
 .range-axis{display:grid;grid-template-columns:1fr 1fr 1fr;font-size:10px;color:#8a9391;margin-top:-3px}.range-axis span:nth-child(2){text-align:center}.range-axis span:last-child{text-align:right}
 #stampPosition{width:100%}
 .back-to-library{display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;color:inherit;text-decoration:none;font-size:13px;font-weight:650;opacity:.72;transition:opacity .2s ease,transform .2s ease}.back-to-library:hover{opacity:1;transform:translateX(-2px)}.back-to-library:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:4px}
+.add-medicine-bottom{width:100%;margin-top:12px;border:1px dashed var(--line);background:#f7f9f8}
+.add-medicine-bottom:hover{background:#edf2f0}
+.project-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.project-status{display:block;min-height:16px;text-align:center;color:var(--muted);font-size:11px;line-height:1.35}
+@media(max-width:430px){.project-actions{grid-template-columns:1fr}}

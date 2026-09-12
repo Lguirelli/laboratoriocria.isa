@@ -1,7 +1,10 @@
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'prescricao-editor:v2';
+  const LEGACY_STORAGE_KEY = 'prescricao-editor:v2';
+  const PROJECTS_KEY = 'prescricao-editor:projects:v1';
+  const TEMPLATE_DRAFT_KEY = 'prescricao-editor:draft:template';
+  const PROJECT_DRAFT_PREFIX = 'prescricao-editor:draft:project:';
   const DESIGN = {
     width:2480, height:3508,
     medsLeft:165, medsTop:865, medsWidth:2171,
@@ -42,12 +45,26 @@
     patientPreview:$('patientPreview'),medicinesPreview:$('medicinesPreview'),warningPreview:$('warningPreview'),stampPreview:$('stampPreview'),
     stampDatePreview:$('stampDatePreview'),professionalPreview:$('professionalPreview'),registrationPreview:$('registrationPreview'),
     stageViewport:$('stageViewport'),stageSizer:$('stageSizer'),artboard:$('artboard'),exportScale:$('exportScale'),exportFormat:$('exportFormat'),exportFile:$('exportFile'),
-    saveProject:$('saveProject'),medicineEditorTemplate:$('medicineEditorTemplate'),autosaveStatus:$('autosaveStatus')
+    saveProject:$('saveProject'),duplicateProject:$('duplicateProject'),projectStatus:$('projectStatus'),medicineEditorTemplate:$('medicineEditorTemplate'),autosaveStatus:$('autosaveStatus')
   };
 
-  let state=loadPersistedState();
+  const params=new URLSearchParams(location.search);
+  let currentProjectId=params.get('project')||'';
   let lastLayout={medicineHeights:[],warningTop:2793};
   let saveTimer=null;
+
+  function readProjects(){
+    try{const value=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}
+  }
+  function writeProjects(items){localStorage.setItem(PROJECTS_KEY,JSON.stringify(items))}
+  function findProject(id){return readProjects().find(item=>item.id===id)||null}
+  function draftKey(){return currentProjectId?`${PROJECT_DRAFT_PREFIX}${currentProjectId}`:TEMPLATE_DRAFT_KEY}
+  function cloneState(value){return JSON.parse(JSON.stringify(value))}
+  function patientLabel(){return String(state.patientName||'').trim()||'Sem nome'}
+  function projectTitle(copy=false){return `Prescrição médica · ${patientLabel()}${copy?' · Cópia':''}`}
+  function safeFilePart(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'sem-nome'}
+  function setProjectFeedback(message){if(!els.projectStatus)return;els.projectStatus.textContent=message;clearTimeout(setProjectFeedback.timer);setProjectFeedback.timer=setTimeout(()=>{els.projectStatus.textContent=''},2200)}
+  function updateDocumentTitle(){document.title=`${projectTitle(false)} · Editor`}
 
   function mergeState(data){
     const base=initialState();
@@ -74,11 +91,22 @@
     };
   }
   function loadPersistedState(){
-    try{return mergeState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch{return initialState()}
+    try{
+      const draft=JSON.parse(localStorage.getItem(draftKey())||'null');
+      if(draft)return mergeState(draft);
+      if(currentProjectId){const project=findProject(currentProjectId);if(project?.state)return mergeState(project.state)}
+      const templateDraft=JSON.parse(localStorage.getItem(TEMPLATE_DRAFT_KEY)||'null');
+      if(templateDraft)return mergeState(templateDraft);
+      const legacy=JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY)||'null');
+      if(legacy)return mergeState(legacy);
+    }catch{}
+    return initialState();
   }
+  let state=loadPersistedState();
   function persistState(){
     try{
-      localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,version:2,savedAt:new Date().toISOString()}));
+      localStorage.setItem(draftKey(),JSON.stringify({...state,version:3,savedAt:new Date().toISOString()}));
+      updateDocumentTitle();
       if(els.autosaveStatus){els.autosaveStatus.textContent='Salvo automaticamente agora.';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{els.autosaveStatus.textContent='Alterações salvas automaticamente neste navegador.'},1300)}
     }catch(e){if(els.autosaveStatus)els.autosaveStatus.textContent='Não foi possível salvar localmente neste navegador.'}
   }
@@ -155,7 +183,7 @@
     els.styleTarget.addEventListener('change',syncStyleControls);
     [['fontFamily','family'],['fontWeight','weight'],['fontSize','size'],['letterSpacing','letterSpacing'],['lineHeight','lineHeight'],['textColor','color']].forEach(([id,key])=>els[id].addEventListener('input',()=>{let v=els[id].value;if(['weight','size','letterSpacing','lineHeight'].includes(key))v=Number(v);state.typography[els.styleTarget.value][key]=v;syncStyleControls();changed()}));
     [['medicineGap','gap'],['boxPaddingX','paddingX'],['boxPaddingY','paddingY'],['boxRadius','radius']].forEach(([id,key])=>els[id].addEventListener('input',()=>{state.layout[key]=Number(els[id].value);syncLayoutControls();changed()}));
-    els.exportFormat.addEventListener('change',()=>{els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`});els.exportFile.addEventListener('click',exportCurrent);els.saveProject.addEventListener('click',saveProject);window.addEventListener('resize',fitStage);
+    els.exportFormat.addEventListener('change',()=>{els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`});els.exportFile.addEventListener('click',exportCurrent);els.saveProject.addEventListener('click',saveProject);els.duplicateProject.addEventListener('click',duplicateProject);window.addEventListener('resize',fitStage);
   }
 
   function textFont(t,scale=1){return `${t.weight} ${Math.round(t.size*scale)}px "${t.family}"`}
@@ -192,10 +220,32 @@
   }
   async function exportCurrent(){
     const fmt=els.exportFormat.value,scale=Number(els.exportScale.value);els.exportFile.disabled=true;els.exportFile.textContent='Gerando…';
-    try{const canvas=await renderCanvas(scale),base=`prescricao-${todayISO()}-${scale}x`;if(fmt==='png')downloadBlob(await canvasToBlob(canvas,'image/png',1),`${base}.png`);else if(fmt==='jpg')downloadBlob(await canvasToBlob(canvas,'image/jpeg',.96),`${base}.jpg`);else{const jpeg=dataUrlBytes(canvas.toDataURL('image/jpeg',.96));downloadBlob(makePdfFromJpeg(jpeg,canvas.width,canvas.height),`${base}.pdf`)}}catch(err){alert('Não foi possível gerar o arquivo. '+err.message)}finally{els.exportFile.disabled=false;els.exportFile.textContent=`Baixar ${fmt.toUpperCase()}`}
+    try{const canvas=await renderCanvas(scale),base=`prescricao-${safeFilePart(patientLabel())}-${todayISO()}-${scale}x`;if(fmt==='png')downloadBlob(await canvasToBlob(canvas,'image/png',1),`${base}.png`);else if(fmt==='jpg')downloadBlob(await canvasToBlob(canvas,'image/jpeg',.96),`${base}.jpg`);else{const jpeg=dataUrlBytes(canvas.toDataURL('image/jpeg',.96));downloadBlob(makePdfFromJpeg(jpeg,canvas.width,canvas.height),`${base}.pdf`)}}catch(err){alert('Não foi possível gerar o arquivo. '+err.message)}finally{els.exportFile.disabled=false;els.exportFile.textContent=`Baixar ${fmt.toUpperCase()}`}
   }
-  function saveProject(){downloadBlob(new Blob([JSON.stringify({...state,version:2},null,2)],{type:'application/json'}),`prescricao-backup-${todayISO()}.json`)}
+  function saveProject(){
+    try{
+      const now=new Date().toISOString(),items=readProjects();
+      if(!currentProjectId)currentProjectId=newId();
+      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:now,state:cloneState(state)};
+      const index=items.findIndex(item=>item.id===currentProjectId);
+      if(index>=0)items[index]=record;else items.unshift(record);
+      writeProjects(items);
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:3,savedAt:now}));
+      history.replaceState(null,'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
+      setProjectFeedback('Projeto salvo.');updateDocumentTitle();
+    }catch{setProjectFeedback('Não foi possível salvar o projeto.')}
+  }
+  function duplicateProject(){
+    try{
+      const id=newId(),now=new Date().toISOString(),items=readProjects();
+      const record={id,template:'prescricao',title:projectTitle(true),patientName:patientLabel(),savedAt:now,state:cloneState(state)};
+      items.unshift(record);writeProjects(items);
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:3,savedAt:now}));
+      currentProjectId=id;history.replaceState(null,'',`editor.html?project=${encodeURIComponent(id)}`);
+      setProjectFeedback('Cópia criada. O projeto original foi preservado.');updateDocumentTitle();
+    }catch{setProjectFeedback('Não foi possível duplicar o projeto.')}
+  }
   function tickDate(){if(state.stamp.autoDate){const now=todayISO();if(els.stampDate.value!==now){els.stampDate.value=now;state.stamp.date=now;persistState();renderPreview()}}}
-  function init(){syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();setInterval(tickDate,60000)}
+  function init(){syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}
   init();
 })();
