@@ -32,3 +32,7 @@
 .editable-subtitle{font-family:'Montserrat',Arial,sans-serif}
 .editable-body,.additional-info-copy,.design-box-copy .box-body-preview{font-family:'Montserrat',Arial,sans-serif}
 .design-box-copy h3{font-family:'Cormorant Garamond',serif}
+
+/* Responsive box stack: JS scales whole cards uniformly when the list grows. */
+.boxes-stage{display:block;position:absolute}
+.design-box{position:absolute;left:0;top:0;transform-origin:top center;will-change:transform}
