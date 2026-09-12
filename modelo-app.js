@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 const S=window.ProjectStorage;
-const params=new URLSearchParams(location.search);let currentProjectId=params.get('project');
+const params=new URLSearchParams(location.search);let currentProjectId=params.get('project');let currentProjectTitle='Modelo 1';
 const PALETTE=[['Verde petróleo','#014744'],['Verde médio','#5B7E4E'],['Verde suave','#C4C9B3'],['Grafite','#262E34'],['Creme','#F3F0EB']];
 const BOX_PALETTES={
   light:{name:'Claro',bg:'#DFDDD2',title:'#014744',text:'#262E34',circle:'#C4C9B3',icon:'#F3F0EB'},
@@ -23,7 +23,7 @@ const els={titleMain:$('titleMain'),titleHighlight:$('titleHighlight'),titleSize
 let state=clone(defaults);
 function readProjects(){return S?.getProjects?.()||[]}
 function projectRecord(id){return readProjects().find(p=>p.id===id)}
-async function loadState(){await S?.ready;const repoProject=currentProjectId?await apiGetProject(currentProjectId):null;const projects=(await S?.getProjectsAsync?.())||readProjects();const p=repoProject||(currentProjectId?projects.find(x=>x.id===currentProjectId):null);const d=await S?.getAsync?.(draftKey(),null);state=migrate((p?.state)||d||defaults)}
+async function loadState(){await S?.ready;const repoProject=currentProjectId?await apiGetProject(currentProjectId):null;const projects=(await S?.getProjectsAsync?.())||readProjects();const p=repoProject||(currentProjectId?projects.find(x=>x.id===currentProjectId):null);if(p?.title)currentProjectTitle=p.title;const d=await S?.getAsync?.(draftKey(),null);state=migrate((p?.state)||d||defaults)}
 
 // Rich text selection toolbar
 const savedRanges=new WeakMap();
@@ -46,7 +46,7 @@ function renderBoxEditors(){els.boxEditors.innerHTML='';state.boxes.forEach((box
 const te=w.querySelector('.box-title'),be=w.querySelector('.box-body');te.innerHTML=box.titleHtml;be.innerHTML=box.bodyHtml;wireRich(te,w.querySelector('.title-toolbar'),v=>box.titleHtml=v);wireRich(be,w.querySelector('.body-toolbar'),v=>box.bodyHtml=v);
 const po=w.querySelector('.palette-options');Object.entries(BOX_PALETTES).forEach(([k,p])=>{const b=document.createElement('button');b.type='button';b.className='palette-card'+(box.palette===k?' is-selected':'');b.innerHTML=`<span class="palette-preview"><i style="background:${p.bg}"></i><i style="background:${p.title}"></i><i style="background:${p.text}"></i></span>${p.name}`;b.onclick=()=>{box.palette=k;renderBoxEditors();commit()};po.appendChild(b)});
 w.querySelector('.box-icon-file').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{box.icon=await readIconFile(f);renderBoxEditors();commit()}catch(err){alert(err.message)}};
-w.querySelector('.duplicate').onclick=()=>{state.boxes.splice(index+1,0,clone(box));renderBoxEditors();commit()};w.querySelector('.remove')?.addEventListener('click',()=>{state.boxes.splice(index,1);renderBoxEditors();commit()});els.boxEditors.appendChild(w)})}
+w.querySelector('.duplicate').onclick=()=>{if(state.boxes.length>=2){feedback('Limite de 2 boxes atingido para preservar a legibilidade.');return}state.boxes.splice(index+1,0,clone(box));renderBoxEditors();commit()};w.querySelector('.remove')?.addEventListener('click',()=>{state.boxes.splice(index,1);renderBoxEditors();commit()});els.boxEditors.appendChild(w)})}
 
 function renderPreview(){els.previewTitleMain.innerHTML=state.titleMainHtml;els.previewTitleHighlight.innerHTML=state.titleHighlightHtml;els.previewSubtitle.innerHTML=state.subtitleHtml;els.previewBenefitTitle.innerHTML=state.benefitTitleHtml;els.previewAdditionalInfo.innerHTML=state.additionalInfoHtml;els.previewTitle.style.fontSize=state.titleSize+'px';fitTitle();els.previewBodyCopy.classList.toggle('is-list',state.bodyIsList);if(state.bodyIsList){const lines=htmlToRichLines(state.bodyHtml);els.previewBodyCopy.innerHTML='';lines.forEach(line=>{const d=document.createElement('div');d.className='body-line';d.innerHTML=`<span class="body-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4 4L19 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>${line}</span>`;els.previewBodyCopy.appendChild(d)})}else els.previewBodyCopy.innerHTML=state.bodyHtml;els.previewBoxes.innerHTML='';state.boxes.forEach(box=>{const p=BOX_PALETTES[box.palette]||BOX_PALETTES.light,d=document.createElement('section');d.className='design-box';d.style.background=p.bg;d.innerHTML=`<div class="design-box-icon-wrap" style="background:${p.circle};color:${p.icon}">${iconMarkup(box.icon)}</div><div class="design-box-copy"><h3 style="color:${p.title}">${box.titleHtml}</h3><div class="box-body-preview" style="color:${p.text}">${box.bodyHtml}</div></div>`;els.previewBoxes.appendChild(d)});els.previewImage.src=state.image.src;els.previewImage.style.transform=`translate(${state.image.offsetX}px,${state.image.offsetY}px) scale(${state.image.zoom})`;els.imageZoomOut.textContent=Math.round(state.image.zoom*100)+'%';requestAnimationFrame(layoutFlow)}
 function htmlToRichLines(html){
@@ -88,51 +88,38 @@ function layoutFlow(){
   const boxTop=346+subtitleHeight+32;
   els.previewBoxes.style.top=boxTop+'px';
   const boxes=[...els.previewBoxes.children];
-  const baseGap=43;
-  const targetStack=265; // original PSD box band
-  const benefitGap=436;  // original distance from the box bottom to "Principais benefícios"
-
-  // Keep horizontal width exactly 954px. Only vertical density/internal elements adapt.
-  boxes.forEach(n=>{
-    n.style.setProperty('--box-scale','1');
-    n.style.top='0px';
-    n.style.width='954px';
-  });
+  const baseGap=43, benefitGap=128, maxBenefitTop=1127, MIN_DENSITY=.88;
+  boxes.forEach(n=>{n.style.setProperty('--box-scale','1');n.style.top='0px';n.style.width='954px'});
   let naturalHeights=boxes.map(n=>n.offsetHeight||265);
   let naturalTotal=naturalHeights.reduce((a,b)=>a+b,0)+Math.max(0,boxes.length-1)*baseGap;
-  const density=naturalTotal?Math.max(.42,Math.min(1,targetStack/naturalTotal)):1;
+  const available=Math.max(265,maxBenefitTop-benefitGap-boxTop);
+  const needed=naturalTotal>available?available/naturalTotal:1;
+  const density=Math.max(MIN_DENSITY,Math.min(1,needed));
   boxes.forEach(n=>n.style.setProperty('--box-scale',String(density)));
-  const heights=boxes.map(n=>n.offsetHeight||265*density);
-  const gap=baseGap*density;
-  let y=0;
-  boxes.forEach((n,i)=>{
-    n.style.top=y+'px';
-    y+=heights[i];
-    if(i<boxes.length-1)y+=gap;
-  });
-  els.previewBoxes.style.height=Math.max(0,y)+'px';
-  els.previewBoxes.dataset.scale=density.toFixed(3);
-
-  // The body-copy title follows the final box at the exact original physical gap.
-  const bottom=boxTop+y;
-  const benefitTop=bottom+benefitGap;
-  const lower=benefitTop-1127;
-  els.lowerFlow.style.setProperty('--lower-offset',lower+'px');
-  els.design.style.height='1920px';
-  updateScale();
-  if(density<=.42&&naturalTotal>targetStack)feedback('Há muitos boxes para a faixa original. A altura e os elementos internos foram compactados, mantendo a largura de 954 px.');
+  const heights=boxes.map(n=>n.offsetHeight||265*density),gap=baseGap*density;
+  let y=0;boxes.forEach((n,i)=>{n.style.top=y+'px';y+=heights[i];if(i<boxes.length-1)y+=gap});
+  els.previewBoxes.style.height=Math.max(0,y)+'px';els.previewBoxes.dataset.scale=density.toFixed(3);
+  const benefitTop=boxTop+y+benefitGap;
+  els.lowerFlow.style.setProperty('--lower-offset',(benefitTop-1127)+'px');
+  els.design.style.height='1920px';updateScale();
+  const overflow=naturalTotal*density>available+2;
+  els.addBox.disabled=state.boxes.length>=2||overflow;
+  els.addBox.title=state.boxes.length>=2?'Limite de boxes atingido para preservar a legibilidade.':'';
+  if(overflow)feedback('O conteúdo atingiu o limite seguro dos boxes. Reduza o texto antes de adicionar outro box.');
 }
 function updateScale(){const sc=Math.min((els.stageWrap.clientWidth||720)/1080,1);els.design.style.transform=`scale(${sc})`;els.stageWrap.style.height=1920*sc+'px'}
 
 function newId(){return `modelo1-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`}
-async function saveProject(){try{await S?.ready;if(!currentProjectId)currentProjectId=newId();const now=new Date().toISOString();const repoOld=await apiGetProject(currentProjectId);const projects=(await S.getProjectsAsync?.())||readProjects();const old=repoOld||projects.find(p=>p.id===currentProjectId);const rec={id:currentProjectId,template:'modelo1isa',title:'Modelo 1',fileName:'Modelo 1',preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`,savedAt:old?.savedAt||now,updatedAt:now,state:clone(state)};await apiSaveProject(rec);const i=projects.findIndex(p=>p.id===currentProjectId);if(i>=0)projects[i]=rec;else projects.unshift(rec);if(S.setProjectsAsync)await S.setProjectsAsync(projects);else S.setProjects(projects);if(S.setAsync)await S.setAsync(projectKey(currentProjectId),clone(state));else S.set(projectKey(currentProjectId),clone(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`);flash(els.saveProject,'Salvo ✓');feedback('Projeto salvo em projects/ e disponível no index.');return currentProjectId}catch(e){console.error(e);feedback('Erro ao salvar projeto: '+e.message);return null}}
-async function duplicateProject(){const source=currentProjectId||await saveProject();if(!source)return;const id=newId(),now=new Date().toISOString(),copy=clone(state);const projects=(await S.getProjectsAsync?.())||readProjects();const rec={id,template:'modelo1isa',title:'Modelo 1',fileName:'Modelo 1',preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(id)}`,savedAt:now,updatedAt:now,duplicatedFrom:source,state:copy};await apiSaveProject(rec);projects.unshift(rec);if(S.setProjectsAsync)await S.setProjectsAsync(projects);else S.setProjects(projects);if(S.setAsync)await S.setAsync(projectKey(id),copy);else S.set(projectKey(id),copy);currentProjectId=id;history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(id)}`);flash(els.duplicateProject,'Cópia criada ✓');feedback('Cópia criada como novo arquivo em projects/. O original foi preservado.')}
+async function makeProjectSnapshot(){try{const source=await renderCanvas();const c=document.createElement('canvas');c.width=360;c.height=640;c.getContext('2d').drawImage(source,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.82)}catch(e){console.warn('snapshot',e);return null}}
+async function askProjectName(mode){return await window.ProjectNameDialog?.open({title:mode==='duplicate'?'Duplicar projeto':'Salvar projeto',description:mode==='duplicate'?'Dê um nome para a nova cópia. O projeto original será preservado.':'Dê um nome para identificar este projeto no index.',value:mode==='duplicate'?`${currentProjectTitle||'Modelo 1'} - cópia`:(currentProjectTitle||'Modelo 1'),confirmText:mode==='duplicate'?'Criar cópia':'Salvar'})}
+async function saveProject(){try{await S?.ready;const name=await askProjectName('save');if(!name)return null;if(!currentProjectId)currentProjectId=newId();const now=new Date().toISOString();const repoOld=await apiGetProject(currentProjectId);const projects=(await S.getProjectsAsync?.())||readProjects();const old=repoOld||projects.find(p=>p.id===currentProjectId);const previewData=await makeProjectSnapshot();const rec={id:currentProjectId,template:'modelo1isa',title:name,fileName:name,previewData,preview:old?.preview||'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`,savedAt:old?.savedAt||now,updatedAt:now,state:clone(state)};const saved=await apiSaveProject(rec);currentProjectTitle=name;const local={...rec,preview:saved?.preview||rec.preview};delete local.previewData;const i=projects.findIndex(p=>p.id===currentProjectId);if(i>=0)projects[i]=local;else projects.unshift(local);if(S.setProjectsAsync)await S.setProjectsAsync(projects);else S.setProjects(projects);if(S.setAsync)await S.setAsync(projectKey(currentProjectId),clone(state));else S.set(projectKey(currentProjectId),clone(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`);flash(els.saveProject,'Salvo ✓');feedback(`Projeto “${name}” salvo e disponível no index.`);return currentProjectId}catch(e){console.error(e);feedback('Erro ao salvar projeto: '+e.message);return null}}
+async function duplicateProject(){try{await S?.ready;const name=await askProjectName('duplicate');if(!name)return null;const source=currentProjectId||null,id=newId(),now=new Date().toISOString(),copy=clone(state),projects=(await S.getProjectsAsync?.())||readProjects(),previewData=await makeProjectSnapshot();const rec={id,template:'modelo1isa',title:name,fileName:name,previewData,preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(id)}`,savedAt:now,updatedAt:now,duplicatedFrom:source||undefined,state:copy};const saved=await apiSaveProject(rec);const local={...rec,preview:saved?.preview||rec.preview};delete local.previewData;projects.unshift(local);if(S.setProjectsAsync)await S.setProjectsAsync(projects);else S.setProjects(projects);if(S.setAsync)await S.setAsync(projectKey(id),copy);else S.set(projectKey(id),copy);currentProjectId=id;currentProjectTitle=name;history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(id)}`);flash(els.duplicateProject,'Cópia criada ✓');feedback(`Cópia “${name}” criada. O original foi preservado.`);return id}catch(e){console.error(e);feedback('Erro ao duplicar projeto: '+e.message);return null}}
 function flash(b,t){const o=b.dataset.old||b.textContent;b.dataset.old=o;b.textContent=t;b.classList.add('is-success');setTimeout(()=>{b.textContent=o;b.classList.remove('is-success')},1400)}
 function safeName(s){return String(s||'Modelo 1').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'modelo-1'}
 function fileToResizedDataURL(file,max){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.9))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
 async function handleImageUpload(e){const f=e.target.files?.[0];if(!f)return;state.image={src:await fileToResizedDataURL(f,1400),offsetX:0,offsetY:0,zoom:1};els.imageZoom.value=1;commit()}
 function wireImageDrag(){let d=null;els.imageMask.onpointerdown=e=>{d={x:e.clientX,y:e.clientY,ox:state.image.offsetX,oy:state.image.offsetY};els.imageMask.setPointerCapture(e.pointerId)};els.imageMask.onpointermove=e=>{if(!d)return;const sc=els.design.getBoundingClientRect().width/1080||1;state.image.offsetX=d.ox+(e.clientX-d.x)/sc;state.image.offsetY=d.oy+(e.clientY-d.y)/sc;renderPreview()};els.imageMask.onpointerup=els.imageMask.onpointercancel=()=>{if(d){d=null;queuePersist()}}}
-function wire(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('is-active',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panelContent===b.dataset.panel))});els.titleSize.oninput=e=>{state.titleSize=+e.target.value;els.titleSizeOut.textContent=e.target.value+'px';commit()};els.titleAutoFit.onchange=e=>{state.titleAutoFit=e.target.checked;commit()};els.bodyIsList.onchange=e=>{state.bodyIsList=e.target.checked;commit()};els.imageZoom.oninput=e=>{state.image.zoom=+e.target.value;commit()};els.addBox.onclick=()=>{state.boxes.push(defaultBox());renderBoxEditors();commit()};els.resetImage.onclick=()=>{state.image.offsetX=0;state.image.offsetY=0;state.image.zoom=1;els.imageZoom.value=1;commit()};els.imageUpload.onchange=handleImageUpload;els.saveProject.onclick=saveProject;els.duplicateProject.onclick=duplicateProject;els.exportFormat.onchange=()=>els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`;els.exportFile.onclick=exportFile;addEventListener('resize',updateScale);wireImageDrag();wireStaticRich()}
+function wire(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('is-active',x===b));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('is-active',p.dataset.panelContent===b.dataset.panel))});els.titleSize.oninput=e=>{state.titleSize=+e.target.value;els.titleSizeOut.textContent=e.target.value+'px';commit()};els.titleAutoFit.onchange=e=>{state.titleAutoFit=e.target.checked;commit()};els.bodyIsList.onchange=e=>{state.bodyIsList=e.target.checked;commit()};els.imageZoom.oninput=e=>{state.image.zoom=+e.target.value;commit()};els.addBox.onclick=()=>{if(state.boxes.length>=2){feedback('Limite de 2 boxes atingido para preservar a legibilidade.');return}state.boxes.push(defaultBox());renderBoxEditors();commit()};els.resetImage.onclick=()=>{state.image.offsetX=0;state.image.offsetY=0;state.image.zoom=1;els.imageZoom.value=1;commit()};els.imageUpload.onchange=handleImageUpload;els.saveProject.onclick=saveProject;els.duplicateProject.onclick=duplicateProject;els.exportFormat.onchange=()=>els.exportFile.textContent=`Baixar ${els.exportFormat.value.toUpperCase()}`;els.exportFile.onclick=exportFile;addEventListener('resize',updateScale);wireImageDrag();wireStaticRich()}
 
 // Export fixed to original PSD dimensions: 1080 × 1920.
 async function blobDataURL(url){if(/^data:/.test(url))return url;const r=await fetch(url);const b=await r.blob();return await new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)})}

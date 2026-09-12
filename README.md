@@ -210,3 +210,15 @@ Arquivos principais:
 - ícones do rodapé são máscaras sempre brancas;
 - Modelo 2: a imagem ilustrativa usa a própria camada de máscara do PSD;
 - index usa somente o logo dos modelos no cabeçalho e deduplica modelos pelo ID.
+
+## Atualização v9 — catálogo, snapshots e nomeação
+
+- O index exibe exatamente três modelos-base: Prescrição médica, Modelo 1 e Modelo 2.
+- Projetos salvos aparecem em uma seção separada chamada `Projetos`.
+- `Salvar projeto` e `Duplicar` sempre abrem um modal para definir o nome do projeto antes da gravação.
+- Cada projeto salvo recebe um snapshot JPEG gerado do estado visual atual e armazenado fisicamente em `projects/previews/`.
+- O card do projeto usa esse snapshot, não o preview genérico do modelo.
+- Ao salvar novamente o mesmo projeto, o snapshot é atualizado.
+- Modelo 1 e Modelo 2 mantêm a largura original dos boxes. A compactação vertical só é acionada quando o conteúdo realmente excede a faixa disponível.
+- A compactação é limitada a 88% do tamanho original para preservar legibilidade.
+- Ambos os modelos limitam a pilha a 2 boxes; se o conteúdo ainda não couber com redução leve, o editor bloqueia novas inclusões e orienta reduzir o texto.

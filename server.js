@@ -7,9 +7,11 @@ const { URL } = require('url');
 const ROOT = __dirname;
 const PROJECTS_DIR = path.join(ROOT, 'projects');
 const ARCHIVE_DIR = path.join(PROJECTS_DIR, 'archive');
+const PREVIEWS_DIR = path.join(PROJECTS_DIR, 'previews');
 const PORT = Number(process.env.PORT || 4173);
 fs.mkdirSync(PROJECTS_DIR, { recursive: true });
 fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
+fs.mkdirSync(PREVIEWS_DIR, { recursive: true });
 
 const MIME = {
   '.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
@@ -39,6 +41,14 @@ function writeProject(project) {
   const record = {...project, id};
   delete record.archived;
   delete record.archivedAt;
+  if (record.previewData && /^data:image\/(jpeg|jpg|png);base64,/i.test(record.previewData)) {
+    const match = record.previewData.match(/^data:image\/(jpeg|jpg|png);base64,(.+)$/i);
+    const ext = /png/i.test(match[1]) ? 'png' : 'jpg';
+    const previewFile = `${id}.${ext}`;
+    fs.writeFileSync(path.join(PREVIEWS_DIR, previewFile), Buffer.from(match[2], 'base64'));
+    record.preview = `/api/project-previews/${previewFile}`;
+  }
+  delete record.previewData;
   const target = projectPath(id, false);
   const tmp = `${target}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(record, null, 2), 'utf8');
@@ -78,6 +88,10 @@ function deleteProject(id) {
   for(const file of [projectPath(id,false),projectPath(id,true)]){
     if(fs.existsSync(file)){fs.unlinkSync(file);deleted=true;}
   }
+  for(const ext of ['jpg','png']){
+    const preview=path.join(PREVIEWS_DIR, `${id}.${ext}`);
+    if(fs.existsSync(preview))fs.unlinkSync(preview);
+  }
   if(!deleted) throw new Error('Projeto não encontrado.');
   return true;
 }
@@ -96,6 +110,14 @@ function serveStatic(req,res,urlPath) {
 
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+  const previewMatch=u.pathname.match(/^\/api\/project-previews\/([a-zA-Z0-9_-]+\.(?:jpg|png))$/i);
+  if(previewMatch && req.method==='GET'){
+    const target=path.join(PREVIEWS_DIR,path.basename(previewMatch[1]));
+    if(!fs.existsSync(target)){res.writeHead(404);return res.end('Not found');}
+    const ext=path.extname(target).toLowerCase();
+    res.writeHead(200,{'Content-Type':MIME[ext]||'image/jpeg','Cache-Control':'no-store'});
+    return fs.createReadStream(target).pipe(res);
+  }
   if(u.pathname==='/api/projects' && req.method==='GET') return sendJson(res,200,{projects:listProjects(),archived:listArchived()});
   if(u.pathname==='/api/projects' && req.method==='POST') {
     try { const body=JSON.parse(await readBody(req)||'{}'); const rec=writeProject(body); return sendJson(res,200,{ok:true,project:rec}); }

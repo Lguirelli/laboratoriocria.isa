@@ -49,7 +49,7 @@
   };
 
   const params=new URLSearchParams(location.search);
-  let currentProjectId=params.get('project')||'';
+  let currentProjectId=params.get('project')||'';let currentProjectTitle='Prescrição médica';
   let lastLayout={medicineHeights:[],warningTop:2793};
   let saveTimer=null;
 
@@ -254,47 +254,38 @@
     if(!confirmed)throw new Error('O projeto não apareceu no catálogo após a gravação.');
     return confirmed;
   }
+  async function makeProjectSnapshot(){
+    try{const source=await renderCanvas(1),c=document.createElement('canvas');c.width=360;c.height=Math.round(360*DESIGN.height/DESIGN.width);c.getContext('2d').drawImage(source,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.82)}catch(e){console.warn('snapshot',e);return null}
+  }
+  async function askProjectName(mode){
+    const fallback=currentProjectTitle||projectTitle(false)||'Prescrição médica';
+    return await window.ProjectNameDialog?.open({title:mode==='duplicate'?'Duplicar projeto':'Salvar projeto',description:mode==='duplicate'?'Dê um nome para a nova cópia. O projeto original será preservado.':'Dê um nome para identificar este projeto no index.',value:mode==='duplicate'?`${fallback} - cópia`:fallback,confirmText:mode==='duplicate'?'Criar cópia':'Salvar'});
+  }
   async function saveProject(){
     try{
-      const now=new Date().toISOString();
-      if(!currentProjectId)currentProjectId=newId();
-      const existing=await apiGetProject(currentProjectId);
-      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:existing?.savedAt||now,updatedAt:now,preview:'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(currentProjectId)}`,state:cloneState(state)};
-      await apiSaveProject(record);
-      try{persistProjectRecord(record);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
+      const name=await askProjectName('save');if(!name)return null;
+      const now=new Date().toISOString();if(!currentProjectId)currentProjectId=newId();
+      const existing=await apiGetProject(currentProjectId),previewData=await makeProjectSnapshot();
+      const record={id:currentProjectId,template:'prescricao',title:name,fileName:name,patientName:patientLabel(),savedAt:existing?.savedAt||now,updatedAt:now,previewData,preview:existing?.preview||'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(currentProjectId)}`,state:cloneState(state)};
+      const saved=await apiSaveProject(record);currentProjectTitle=name;
+      const local={...record,preview:saved?.preview||record.preview};delete local.previewData;
+      try{persistProjectRecord(local);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
       history.replaceState({project:currentProjectId},'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
-      setProjectFeedback(`Salvo como “${record.title}” em projects/.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();
-      return currentProjectId;
-    }catch(err){
-      console.error('Falha ao salvar projeto',err);
-      setProjectFeedback(err?.message||'Não foi possível salvar o projeto.');
-      if(els.saveProject)flashProjectButton(els.saveProject,'Erro ao salvar');
-      return null;
-    }
+      setProjectFeedback(`Projeto “${name}” salvo em projects/.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();return currentProjectId;
+    }catch(err){console.error('Falha ao salvar projeto',err);setProjectFeedback(err?.message||'Não foi possível salvar o projeto.');if(els.saveProject)flashProjectButton(els.saveProject,'Erro ao salvar');return null}
   }
   async function duplicateProject(){
     try{
-      const sourceId=currentProjectId||await saveProject();
-      if(!sourceId)throw new Error('Salve o projeto original antes de criar a cópia.');
-      const source=await apiGetProject(sourceId);
-      const id=newId(),now=new Date().toISOString();
-      const copyTitle=`Prescrição médica · ${patientLabel()} · Cópia`;
-      const record={id,template:'prescricao',title:copyTitle,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId,preview:'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(id)}`,state:cloneState(state)};
-      await apiSaveProject(record);
-      try{persistProjectRecord(record);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
-      currentProjectId=id;
-      history.replaceState({project:id},'',`editor.html?project=${encodeURIComponent(id)}`);
-      setProjectFeedback(`Cópia criada em projects/. O original “${source?.title||projectTitle(false)}” foi preservado.`);
-      flashProjectButton(els.duplicateProject,'Cópia criada ✓');updateDocumentTitle();
-      return id;
-    }catch(err){
-      console.error('Falha ao duplicar projeto',err);
-      setProjectFeedback(err?.message||'Não foi possível duplicar o projeto.');
-      if(els.duplicateProject)flashProjectButton(els.duplicateProject,'Erro ao duplicar');
-      return null;
-    }
+      const name=await askProjectName('duplicate');if(!name)return null;
+      const sourceId=currentProjectId||null,id=newId(),now=new Date().toISOString(),previewData=await makeProjectSnapshot();
+      const record={id,template:'prescricao',title:name,fileName:name,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId||undefined,previewData,preview:'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(id)}`,state:cloneState(state)};
+      const saved=await apiSaveProject(record),local={...record,preview:saved?.preview||record.preview};delete local.previewData;
+      try{persistProjectRecord(local);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
+      currentProjectId=id;currentProjectTitle=name;history.replaceState({project:id},'',`editor.html?project=${encodeURIComponent(id)}`);
+      setProjectFeedback(`Cópia “${name}” criada. O original foi preservado.`);flashProjectButton(els.duplicateProject,'Cópia criada ✓');updateDocumentTitle();return id;
+    }catch(err){console.error('Falha ao duplicar projeto',err);setProjectFeedback(err?.message||'Não foi possível duplicar o projeto.');if(els.duplicateProject)flashProjectButton(els.duplicateProject,'Erro ao duplicar');return null}
   }
   function tickDate(){if(state.stamp.autoDate){const now=todayISO();if(els.stampDate.value!==now){els.stampDate.value=now;state.stamp.date=now;persistState();renderPreview()}}}
-  async function init(){if(currentProjectId){const repo=await apiGetProject(currentProjectId);if(repo?.state)state=mergeState(repo.state)}syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}
+  async function init(){if(currentProjectId){const repo=await apiGetProject(currentProjectId);if(repo?.state)state=mergeState(repo.state);if(repo?.title)currentProjectTitle=repo.title}syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}
   init();
 })();

@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const savedGrid=document.getElementById('savedGrid');
+  const savedGroup=document.getElementById('savedGroup');
   const templateGrid=document.getElementById('templateGrid');
   const archivedGrid=document.getElementById('archivedGrid');
   const archivedGroup=document.getElementById('archivedGroup');
@@ -19,7 +20,7 @@
   const templateById=id=>templates.find(x=>x.id===id);
   function projectToCard(p,archived=false){
     const base=templateById(p.template)||{};
-    return {id:p.id,title:p.title||p.fileName||base.title||'Projeto sem nome',date:formatSavedDate(archived?(p.archivedAt||p.updatedAt||p.savedAt):(p.updatedAt||p.savedAt)),preview:p.preview||base.preview||'assets/images/modelo1-preview.jpg',editor:p.editor||`${(base.editor||'').split('?')[0]}?project=${encodeURIComponent(p.id)}`,project:true,archived};
+    return {id:p.id,title:p.title||p.fileName||base.title||'Projeto sem nome',date:formatSavedDate(archived?(p.archivedAt||p.updatedAt||p.savedAt):(p.updatedAt||p.savedAt)),preview:(p.preview?`${p.preview}${p.preview.includes('?')?'&':'?'}v=${encodeURIComponent(p.updatedAt||p.savedAt||'1')}`:base.preview)||'assets/images/modelo1-preview.jpg',editor:p.editor||`${(base.editor||'').split('?')[0]}?project=${encodeURIComponent(p.id)}`,project:true,archived};
   }
   async function fetchRepoProjects(){
     try{const r=await fetch('/api/projects',{cache:'no-store'});if(!r.ok)return null;const j=await r.json();return {projects:Array.isArray(j.projects)?j.projects:[],archived:Array.isArray(j.archived)?j.archived:[]}}
@@ -78,7 +79,7 @@
       active=projects.filter(p=>!p.archived);archived=projects.filter(p=>p.archived);
     }
     active.slice().sort((a,b)=>new Date(b.updatedAt||b.savedAt||0)-new Date(a.updatedAt||a.savedAt||0)).map(p=>projectToCard(p,false)).forEach(x=>renderCard(x,savedGrid));
-    if(!active.length)renderEmpty(savedGrid,'Nenhum projeto salvo ainda. Abra um modelo e use “Salvar projeto”.');
+    savedGroup.hidden=!active.length;
     templates.forEach(x=>renderCard({...x,project:false},templateGrid));
     archived.slice().sort((a,b)=>new Date(b.archivedAt||b.updatedAt||0)-new Date(a.archivedAt||a.updatedAt||0)).map(p=>projectToCard(p,true)).forEach(x=>renderCard(x,archivedGrid));
     archivedGroup.hidden=!archived.length;
