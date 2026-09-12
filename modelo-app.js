@@ -1,5 +1,7 @@
-(() => {
+(async () => {
   'use strict';
+  await window.AppStorage.init();
+  const storage = window.AppStorage;
   const PROJECTS_KEY='prescricao-editor:projects:v1';
   const DRAFT_KEY='modelo1isa:draft:v1';
   const PROJECT_DRAFT_PREFIX='modelo1isa:project-draft:';
@@ -34,15 +36,15 @@
   };
   const clone=o=>JSON.parse(JSON.stringify(o));
   const deepMerge=(base,patch)=>{const out=clone(base);for(const [k,v] of Object.entries(patch||{})){if(v&&typeof v==='object'&&!Array.isArray(v)&&out[k]&&typeof out[k]==='object')out[k]=deepMerge(out[k],v);else out[k]=v}return out};
-  const readProjects=()=>{try{const x=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return []}};
-  const writeProjects=x=>localStorage.setItem(PROJECTS_KEY,JSON.stringify(x));
+  const readProjects=()=>{try{const x=JSON.parse(storage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return []}};
+  const writeProjects=x=>storage.setItem(PROJECTS_KEY,JSON.stringify(x));
   const newId=()=>`modelo1isa-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
   const projectRecord=id=>readProjects().find(p=>p.id===id);
   let state=loadInitial();
   function loadInitial(){
     try{
-      if(currentProjectId){const p=projectRecord(currentProjectId);const draft=localStorage.getItem(PROJECT_DRAFT_PREFIX+currentProjectId);return deepMerge(defaults,draft?JSON.parse(draft):(p?.state||{}))}
-      const raw=localStorage.getItem(DRAFT_KEY);return raw?deepMerge(defaults,JSON.parse(raw)):clone(defaults)
+      if(currentProjectId){const p=projectRecord(currentProjectId);const draft=storage.getItem(PROJECT_DRAFT_PREFIX+currentProjectId);return deepMerge(defaults,draft?JSON.parse(draft):(p?.state||{}))}
+      const raw=storage.getItem(DRAFT_KEY);return raw?deepMerge(defaults,JSON.parse(raw)):clone(defaults)
     }catch{return clone(defaults)}
   }
   const $=id=>document.getElementById(id);
@@ -52,7 +54,7 @@
   function luminance(hex){const h=hex.replace('#','');const rgb=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]}
   function palette(bg){return luminance(bg)<.34?{title:'#869159',text:'#ffffff',iconBg:'#f4f3ef',icon:'#014744'}:{title:'#014744',text:'#262e34',iconBg:'#c4c9b3',icon:'#ffffff'}}
   function safeName(s){return String(s||'arquivo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'arquivo'}
-  function persist(){try{const key=currentProjectId?PROJECT_DRAFT_PREFIX+currentProjectId:DRAFT_KEY;localStorage.setItem(key,JSON.stringify({...state,updatedAt:new Date().toISOString()}));els.projectFeedback.textContent='Alterações salvas automaticamente.'}catch{els.projectFeedback.textContent='Não foi possível salvar automaticamente neste navegador.'}}
+  function persist(){try{const key=currentProjectId?PROJECT_DRAFT_PREFIX+currentProjectId:DRAFT_KEY;storage.setItem(key,JSON.stringify({...state,updatedAt:new Date().toISOString()}));els.projectFeedback.textContent='Alterações salvas automaticamente.'}catch{els.projectFeedback.textContent='Não foi possível salvar automaticamente neste navegador.'}}
   function syncInputs(){
     els.fileName.value=state.fileName;els.title.value=state.title;els.subtitle.value=state.subtitle;els.subtitleGap.value=state.subtitleGap;els.pageBackground.value=state.pageBackground;els.benefitsTitle.value=state.benefitsTitle;els.bodyCopy.value=state.bodyCopy;els.bodyIsList.checked=state.bodyIsList;els.infoText.value=state.infoText;els.boxTitle.value=state.box.title;els.boxBody.value=state.box.body;els.boxBackground.value=state.box.background;els.boxPadding.value=state.box.padding;els.autoPalette.checked=state.box.autoPalette;els.iconSize.value=state.box.iconSize;els.iconGap.value=state.box.iconGap;els.footerHeading.value=state.footer.heading;els.instagramText.value=state.footer.instagram;els.whatsappText.value=state.footer.whatsapp;els.footerInfo.value=state.footer.info;els.footerGap.value=state.footer.gap;updateOutputs();renderIconResults('')
   }
@@ -75,9 +77,9 @@
   }
   function renderIconResults(q){const term=String(q||'').trim().toLowerCase();els.iconResults.innerHTML='';ICONS.filter(i=>!term||i.name.includes(term)||i.label.toLowerCase().includes(term)).forEach(icon=>{const b=document.createElement('button');b.type='button';b.className='icon-choice'+(state.box.icon===icon.name?' is-selected':'');b.title=`${icon.name} · ${icon.label}`;b.innerHTML=svgIcon(icon.name);b.addEventListener('click',()=>{state.box.icon=icon.name;renderIconResults(els.iconSearch.value);commit()});els.iconResults.appendChild(b)});if(!els.iconResults.children.length)els.iconResults.innerHTML='<small>Nenhum ícone encontrado.</small>'}
   function saveProject(){
-    try{if(!currentProjectId)currentProjectId=newId();const now=new Date().toISOString(),record={id:currentProjectId,template:'modelo1isa',title:state.fileName||'modelo 1 isa',fileName:state.fileName||'modelo 1 isa',preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`,savedAt:now,updatedAt:now,state:clone(state)};const items=readProjects(),idx=items.findIndex(p=>p.id===currentProjectId);if(idx>=0)items[idx]=record;else items.unshift(record);writeProjects(items);localStorage.setItem(PROJECT_DRAFT_PREFIX+currentProjectId,JSON.stringify(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`);flash(els.saveProject,'Salvo ✓');els.projectFeedback.textContent=`Projeto “${record.title}” salvo.`;return currentProjectId}catch(err){els.projectFeedback.textContent='Erro ao salvar projeto.';console.error(err);return null}}
+    try{if(!currentProjectId)currentProjectId=newId();const now=new Date().toISOString(),record={id:currentProjectId,template:'modelo1isa',title:state.fileName||'modelo 1 isa',fileName:state.fileName||'modelo 1 isa',preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`,savedAt:now,updatedAt:now,state:clone(state)};const items=readProjects(),idx=items.findIndex(p=>p.id===currentProjectId);if(idx>=0)items[idx]=record;else items.unshift(record);writeProjects(items);storage.setItem(PROJECT_DRAFT_PREFIX+currentProjectId,JSON.stringify(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(currentProjectId)}`);flash(els.saveProject,'Salvo ✓');els.projectFeedback.textContent=`Projeto “${record.title}” salvo.`;return currentProjectId}catch(err){els.projectFeedback.textContent='Erro ao salvar projeto.';console.error(err);return null}}
   function duplicateProject(){
-    const source=currentProjectId||saveProject();if(!source)return;try{const sourceRecord=projectRecord(source);const id=newId(),now=new Date().toISOString(),copy=clone(state);copy.fileName=`${state.fileName||'modelo 1 isa'} - cópia`;const record={id,template:'modelo1isa',title:copy.fileName,fileName:copy.fileName,preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(id)}`,savedAt:now,updatedAt:now,duplicatedFrom:source,state:copy};const items=readProjects();items.unshift(record);writeProjects(items);currentProjectId=id;state=copy;localStorage.setItem(PROJECT_DRAFT_PREFIX+id,JSON.stringify(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(id)}`);syncInputs();renderPreview();flash(els.duplicateProject,'Cópia criada ✓');els.projectFeedback.textContent=`Cópia criada. “${sourceRecord?.title||'Original'}” foi preservado.`}catch(err){els.projectFeedback.textContent='Erro ao duplicar projeto.';console.error(err)}}
+    const source=currentProjectId||saveProject();if(!source)return;try{const sourceRecord=projectRecord(source);const id=newId(),now=new Date().toISOString(),copy=clone(state);copy.fileName=`${state.fileName||'modelo 1 isa'} - cópia`;const record={id,template:'modelo1isa',title:copy.fileName,fileName:copy.fileName,preview:'assets/images/modelo1-preview.jpg',editor:`modelo-editor.html?project=${encodeURIComponent(id)}`,savedAt:now,updatedAt:now,duplicatedFrom:source,state:copy};const items=readProjects();items.unshift(record);writeProjects(items);currentProjectId=id;state=copy;storage.setItem(PROJECT_DRAFT_PREFIX+id,JSON.stringify(state));history.replaceState({},'',`modelo-editor.html?project=${encodeURIComponent(id)}`);syncInputs();renderPreview();flash(els.duplicateProject,'Cópia criada ✓');els.projectFeedback.textContent=`Cópia criada. “${sourceRecord?.title||'Original'}” foi preservado.`}catch(err){els.projectFeedback.textContent='Erro ao duplicar projeto.';console.error(err)}}
   function flash(btn,text){const old=btn.dataset.old||btn.textContent;btn.dataset.old=old;btn.textContent=text;btn.classList.add('is-success');setTimeout(()=>{btn.textContent=old;btn.classList.remove('is-success')},1500)}
 
   function wrap(ctx,text,maxWidth){const out=[];String(text||'').split('\n').forEach(p=>{if(!p){out.push('');return}const words=p.split(/\s+/);let line='';words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width<=maxWidth||!line)line=t;else{out.push(line);line=w}});if(line)out.push(line)});return out}

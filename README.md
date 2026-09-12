@@ -105,3 +105,13 @@ Regras implementadas no segundo modelo:
 - `assets/images/modelo1-preview.jpg`
 - `assets/images/modelo1-main-image.png`
 - `assets/images/modelo1-logo.png`
+
+## Persistência de projetos
+
+O repositório utiliza uma camada de armazenamento própria:
+
+1. **IndexedDB** como mecanismo persistente principal;
+2. **localStorage** como fallback e para migração de projetos de versões anteriores;
+3. memória temporária apenas se o navegador bloquear ambos.
+
+Isso evita a dependência obrigatória de servidor HTTP para salvar, duplicar e restaurar projetos em navegadores compatíveis. Ao atualizar de uma versão anterior, dados existentes em `localStorage` são migrados automaticamente para IndexedDB quando possível.
