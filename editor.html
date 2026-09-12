@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#7f9391" />
+  <title>Editar prescrição</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Painel de edição">
+      <header class="sidebar-header">
+        <a class="back-to-library" href="index.html" aria-label="Voltar">← Voltar</a>
+        <p class="eyebrow">EDITOR ONLINE</p>
+        <h1>Prescrição</h1>
+        <p class="sidebar-copy">Edite o conteúdo sem alterar o fundo. O texto é salvo automaticamente neste navegador.</p>
+      </header>
+
+      <nav class="tabs" aria-label="Seções do editor">
+        <button class="tab is-active" data-panel="content">Conteúdo</button>
+        <button class="tab" data-panel="style">Tipografia</button>
+        <button class="tab" data-panel="layout">Layout</button>
+      </nav>
+
+      <section class="panel is-active" data-panel-content="content">
+        <div class="control-group">
+          <label for="patientName">Nome do paciente</label>
+          <input id="patientName" type="text" autocomplete="off" />
+        </div>
+
+        <div class="section-heading">
+          <div><span class="section-kicker">PRESCRIÇÃO</span><h2>Medicamentos</h2></div>
+        </div>
+        <div id="medicineList" class="medicine-editor-list"></div>
+        <button id="addMedicine" class="button button-secondary add-medicine-bottom" type="button">+ Adicionar medicamento</button>
+
+        <div class="control-group section-spacer">
+          <label for="warningText">Aviso</label>
+          <textarea id="warningText" rows="4"></textarea>
+        </div>
+
+        <div class="section-heading compact">
+          <div><span class="section-kicker">CARIMBO</span><h2>Assinatura</h2></div>
+        </div>
+
+        <div class="control-group">
+          <label for="stampPosition">Posição horizontal <output id="stampPositionValue"></output></label>
+          <input id="stampPosition" type="range" min="442" max="2018" step="1" />
+          <div class="range-axis" aria-hidden="true"><span>Esquerda</span><span>Centro</span><span>Direita</span></div>
+          <span class="field-note">Movimento contínuo entre os limites do PSD, com encaixe suave próximo ao centro.</span>
+        </div>
+
+        <div class="control-group">
+          <label for="stampDate">Data</label>
+          <input id="stampDate" type="date" />
+          <label class="switch-row"><input id="autoDate" type="checkbox" checked /> <span>Usar data do dia automaticamente</span></label>
+        </div>
+        <div class="control-group">
+          <label for="professionalName">Nome profissional</label>
+          <input id="professionalName" type="text" />
+        </div>
+        <div class="control-group">
+          <label for="registration">Registro</label>
+          <input id="registration" type="text" />
+        </div>
+      </section>
+
+      <section class="panel" data-panel-content="style">
+        <p class="helper">Cada linha do carimbo possui tipografia independente, preservando a divisão do PSD.</p>
+        <div class="control-group">
+          <label for="styleTarget">Elemento</label>
+          <select id="styleTarget">
+            <option value="patient">Nome do paciente</option>
+            <option value="medicineName">Nome do medicamento</option>
+            <option value="medicineUsage">Modo de uso</option>
+            <option value="warning">Aviso</option>
+            <option value="stampDate">Carimbo · Data</option>
+            <option value="stampName">Carimbo · Nome profissional</option>
+            <option value="stampRegistration">Carimbo · Registro</option>
+          </select>
+        </div>
+        <div class="control-grid two">
+          <div class="control-group"><label for="fontFamily">Fonte</label><select id="fontFamily"><option value="Cormorant Garamond">Cormorant Garamond</option><option value="Montserrat">Montserrat</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select></div>
+          <div class="control-group"><label for="fontWeight">Peso</label><select id="fontWeight"><option value="300">Light 300</option><option value="400">Regular 400</option><option value="500">Medium 500</option><option value="600">SemiBold 600</option><option value="700">Bold 700</option><option value="800">ExtraBold 800</option></select></div>
+        </div>
+        <div class="control-grid two">
+          <div class="control-group"><label for="fontSize">Tamanho <output id="fontSizeValue"></output></label><input id="fontSize" type="range" min="20" max="140" step="1" /></div>
+          <div class="control-group"><label for="letterSpacing">Espaçamento <output id="letterSpacingValue"></output></label><input id="letterSpacing" type="range" min="-3" max="18" step=".25" /></div>
+        </div>
+        <div class="control-grid two">
+          <div class="control-group"><label for="lineHeight">Entrelinhas <output id="lineHeightValue"></output></label><input id="lineHeight" type="range" min=".8" max="2" step=".02" /></div>
+          <div class="control-group"><label for="textColor">Cor</label><input id="textColor" type="color" /></div>
+        </div>
+      </section>
+
+      <section class="panel" data-panel-content="layout">
+        <p class="helper">Adicionar ou remover medicamentos reposiciona automaticamente os itens seguintes e o aviso.</p>
+        <div class="control-group"><label for="medicineGap">Distância entre boxes <output id="medicineGapValue"></output></label><input id="medicineGap" type="range" min="20" max="160" step="2" /></div>
+        <div class="control-grid two">
+          <div class="control-group"><label for="boxPaddingX">Padding horizontal <output id="boxPaddingXValue"></output></label><input id="boxPaddingX" type="range" min="30" max="140" step="2" /></div>
+          <div class="control-group"><label for="boxPaddingY">Padding vertical <output id="boxPaddingYValue"></output></label><input id="boxPaddingY" type="range" min="24" max="140" step="2" /></div>
+        </div>
+        <div class="control-group"><label for="boxRadius">Raio da caixa <output id="boxRadiusValue"></output></label><input id="boxRadius" type="range" min="0" max="60" step="2" /></div>
+        <div class="status-card"><strong>Fundo bloqueado</strong><span>Somente o fundo é fixo. Todos os conteúdos da prescrição permanecem dinâmicos.</span></div>
+        <div class="status-card autosave-card"><strong>Memória persistente</strong><span id="autosaveStatus">Alterações salvas automaticamente neste navegador.</span></div>
+      </section>
+
+      <footer class="sidebar-actions">
+        <div class="export-grid">
+          <div class="control-group compact-control"><label for="exportFormat">Formato</label><select id="exportFormat"><option value="pdf">PDF</option><option value="png">PNG</option><option value="jpg">JPG</option></select></div>
+          <div class="control-group compact-control"><label for="exportScale">Qualidade</label><select id="exportScale"><option value="1">A4 · 300 DPI · 2480 × 3508</option><option value="2">Alta · 600 DPI · 4960 × 7016</option></select></div>
+        </div>
+        <button id="exportFile" class="button button-primary full-button" type="button">Baixar PDF</button>
+        <div class="project-actions">
+          <button id="saveProject" class="button button-secondary full-button" type="button">Salvar projeto</button>
+          <button id="duplicateProject" class="button button-secondary full-button" type="button">Duplicar</button>
+        </div>
+        <span id="projectStatus" class="project-status" role="status" aria-live="polite"></span>
+      </footer>
+    </aside>
+
+    <main class="workspace">
+      <div class="workspace-toolbar"><span id="documentInfo">A4 • 2480 × 3508 px • 300 DPI</span><span id="layoutStatus">Layout automático ativo</span></div>
+      <div id="stageViewport" class="stage-viewport"><div id="stageSizer" class="stage-sizer"><div id="artboard" class="artboard" aria-label="Pré-visualização da prescrição">
+        <img class="background-layer" src="assets/images/prescription-background.png" alt="" draggable="false" />
+        <div id="patientPreview" class="patient-preview"></div>
+        <div id="medicinesPreview" class="medicines-preview"></div>
+        <div id="warningPreview" class="warning-preview"></div>
+        <div id="stampPreview" class="stamp-preview"><div id="stampDatePreview" class="stamp-date-preview"></div><div id="professionalPreview" class="stamp-name-preview"></div><div id="registrationPreview" class="stamp-registration-preview"></div></div>
+      </div></div></div>
+    </main>
+  </div>
+
+  <template id="medicineEditorTemplate">
+    <article class="medicine-editor-card">
+      <div class="medicine-card-head"><strong class="medicine-number"></strong><div class="medicine-card-actions"><button class="icon-button duplicate-medicine" type="button">Duplicar</button><button class="icon-button danger remove-medicine" type="button">Excluir</button></div></div>
+      <div class="control-group"><label>Nome do medicamento</label><input class="medicine-name-input" type="text" autocomplete="off" /></div>
+      <div class="control-group"><label>Modo de uso</label><textarea class="medicine-usage-input" rows="3"></textarea></div>
+    </article>
+  </template>
+
+  <script src="storage.js"></script>
+  <script src="project-service.js"></script>
+  <script src="project-dialog.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
