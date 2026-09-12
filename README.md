@@ -1,79 +1,37 @@
-# Editor Online de Prescrição
+# Editor de Prescrição
 
-Editor web estático criado a partir do PSD de prescrição fornecido no projeto. O **fundo é a única camada bloqueada**; paciente, medicamentos, aviso e carimbo são reconstruídos como elementos dinâmicos.
+Editor web estático baseado no template `PRESCRIÇÃO(3).psd`, pronto para GitHub Pages.
 
 ## Recursos
 
-- nome do paciente editável;
-- medicamentos em lista dinâmica;
-- adicionar, duplicar e excluir medicamentos;
-- cada box cresce conforme nome e modo de uso;
-- padding constante em relação ao conteúdo;
-- distância uniforme entre boxes;
-- aviso sempre posicionado à mesma distância do último medicamento;
-- data do carimbo atualizada automaticamente pelo calendário do dispositivo;
-- opção de data manual;
-- nome profissional e registro editáveis;
-- tipografia configurável por tipo de elemento: família, peso, tamanho, tracking, entrelinha e cor;
-- fundo bloqueado e preservado;
-- exportação PNG na resolução original `2480 × 3508`;
-- exportação PNG em `2×`, `4960 × 7016`;
-- salvar e reabrir projeto em JSON;
-- sem framework e sem etapa de build.
+- Fundo bloqueado extraído do PSD em A4, 2480 × 3508 px, 300 DPI.
+- Nome do paciente, medicamentos, aviso e carimbo editáveis.
+- Boxes de medicamentos com altura dinâmica e padding constante.
+- Adição, duplicação e exclusão de medicamentos.
+- O aviso mantém o mesmo gap utilizado entre os medicamentos.
+- Carimbo com data automática do dia.
+- Três posições oficiais de carimbo extraídas do PSD: esquerda, centro e direita.
+- Data, nome profissional e registro possuem estilos tipográficos independentes.
+- Controles de fonte, peso, tamanho, tracking, entrelinha e cor.
+- Persistência automática em `localStorage`: recarregar ou voltar ao editor preserva a edição no mesmo navegador.
+- Exportação em PDF, PNG e JPG.
+- Exportação A4 300 DPI ou alta resolução 2×.
+- Backup manual opcional em JSON.
+- Sem botão de abertura/importação de projeto.
+- Sem build obrigatório: HTML, CSS e JavaScript puro.
 
-## Como executar
-
-Por segurança dos navegadores, abra por um servidor HTTP local em vez de clicar diretamente em `index.html`.
-
-```bash
-python -m http.server 8080
-```
-
-Acesse:
-
-```text
-http://localhost:8080
-```
-
-Também funciona com qualquer servidor estático, GitHub Pages, Netlify, Vercel ou Cloudflare Pages.
-
-## GitHub Pages
+## Publicar no GitHub Pages
 
 1. Crie um repositório no GitHub.
-2. Envie todos os arquivos deste diretório para a branch principal.
-3. Abra **Settings → Pages**.
-4. Em **Build and deployment**, escolha **Deploy from a branch**.
-5. Selecione a branch principal e a pasta `/ (root)`.
+2. Envie todo o conteúdo desta pasta para a raiz do repositório.
+3. Em **Settings → Pages**, selecione **Deploy from a branch**.
+4. Escolha a branch `main` e a pasta `/ (root)`.
+5. Salve e aguarde a publicação.
 
-Não há dependências Node nem segredos.
+## Persistência
 
-## Estrutura
+A edição é salva automaticamente no armazenamento local do navegador. Isso significa que os textos e configurações permanecem após recarregar ou fechar a página, desde que o armazenamento do site não seja apagado e o editor seja aberto no mesmo navegador/origem.
 
-```text
-.
-├── index.html
-├── styles.css
-├── app.js
-├── assets/
-│   ├── images/
-│   │   └── prescription-background.png
-│   └── fonts/
-│       └── cormorant/
-├── docs/
-│   └── IMPLEMENTATION.md
-└── README.md
-```
+## PDF
 
-## Fonte do fundo
-
-O PNG em `assets/images/prescription-background.png` corresponde apenas à camada visual de fundo do PSD. Os elementos editáveis não foram rasterizados sobre ele.
-
-## Tipografia
-
-Cormorant Garamond é incluída localmente com licença OFL. Montserrat é carregada pelo Google Fonts e tem fallbacks locais. Se o editor for usado sem internet, os textos Montserrat cairão para Arial até que uma versão local da fonte seja adicionada.
-
-## Observação de layout
-
-O aviso pertence ao mesmo fluxo vertical dos medicamentos. Assim, ao adicionar, remover ou expandir um medicamento, a posição do aviso é recalculada automaticamente.
-
-O carimbo permanece na região inferior direita definida pelo template. Quando o conteúdo de medicamentos se aproxima dessa área, a interface exibe um alerta visual de espaço.
+O PDF é gerado localmente no navegador em tamanho A4. O conteúdo é renderizado na resolução selecionada e incorporado ao PDF sem envio para servidor.

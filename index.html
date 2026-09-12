@@ -13,7 +13,7 @@
       <header class="sidebar-header">
         <p class="eyebrow">EDITOR ONLINE</p>
         <h1>Prescrição</h1>
-        <p class="sidebar-copy">Edite o conteúdo sem alterar o fundo. Os boxes acompanham automaticamente o tamanho dos textos.</p>
+        <p class="sidebar-copy">Edite o conteúdo sem alterar o fundo. O texto é salvo automaticamente neste navegador.</p>
       </header>
 
       <nav class="tabs" aria-label="Seções do editor">
@@ -29,13 +29,9 @@
         </div>
 
         <div class="section-heading">
-          <div>
-            <span class="section-kicker">PRESCRIÇÃO</span>
-            <h2>Medicamentos</h2>
-          </div>
+          <div><span class="section-kicker">PRESCRIÇÃO</span><h2>Medicamentos</h2></div>
           <button id="addMedicine" class="button button-primary" type="button">+ Adicionar</button>
         </div>
-
         <div id="medicineList" class="medicine-editor-list"></div>
 
         <div class="control-group section-spacer">
@@ -44,10 +40,17 @@
         </div>
 
         <div class="section-heading compact">
-          <div>
-            <span class="section-kicker">CARIMBO</span>
-            <h2>Assinatura</h2>
-          </div>
+          <div><span class="section-kicker">CARIMBO</span><h2>Assinatura</h2></div>
+        </div>
+
+        <div class="control-group">
+          <label for="stampPosition">Posição do carimbo</label>
+          <select id="stampPosition">
+            <option value="left">Esquerda</option>
+            <option value="center">Centro</option>
+            <option value="right">Direita</option>
+          </select>
+          <span class="field-note">As três posições correspondem às três instâncias existentes no PSD.</span>
         </div>
 
         <div class="control-group">
@@ -66,7 +69,7 @@
       </section>
 
       <section class="panel" data-panel-content="style">
-        <p class="helper">Selecione qual elemento tipográfico deseja ajustar.</p>
+        <p class="helper">Cada linha do carimbo possui tipografia independente, preservando a divisão do novo PSD.</p>
         <div class="control-group">
           <label for="styleTarget">Elemento</label>
           <select id="styleTarget">
@@ -74,7 +77,9 @@
             <option value="medicineName">Nome do medicamento</option>
             <option value="medicineUsage">Modo de uso</option>
             <option value="warning">Aviso</option>
-            <option value="stamp">Carimbo</option>
+            <option value="stampDate">Carimbo · Data</option>
+            <option value="stampName">Carimbo · Nome profissional</option>
+            <option value="stampRegistration">Carimbo · Registro</option>
           </select>
         </div>
         <div class="control-grid two">
@@ -90,12 +95,9 @@
           <div class="control-group">
             <label for="fontWeight">Peso</label>
             <select id="fontWeight">
-              <option value="300">Light 300</option>
-              <option value="400">Regular 400</option>
-              <option value="500">Medium 500</option>
-              <option value="600">SemiBold 600</option>
-              <option value="700">Bold 700</option>
-              <option value="800">ExtraBold 800</option>
+              <option value="300">Light 300</option><option value="400">Regular 400</option>
+              <option value="500">Medium 500</option><option value="600">SemiBold 600</option>
+              <option value="700">Bold 700</option><option value="800">ExtraBold 800</option>
             </select>
           </div>
         </div>
@@ -106,13 +108,13 @@
           </div>
           <div class="control-group">
             <label for="letterSpacing">Espaçamento <output id="letterSpacingValue"></output></label>
-            <input id="letterSpacing" type="range" min="-4" max="20" step="0.5" />
+            <input id="letterSpacing" type="range" min="-3" max="18" step=".25" />
           </div>
         </div>
         <div class="control-grid two">
           <div class="control-group">
             <label for="lineHeight">Entrelinhas <output id="lineHeightValue"></output></label>
-            <input id="lineHeight" type="range" min="0.8" max="2.2" step="0.05" />
+            <input id="lineHeight" type="range" min=".8" max="2" step=".02" />
           </div>
           <div class="control-group">
             <label for="textColor">Cor</label>
@@ -122,7 +124,7 @@
       </section>
 
       <section class="panel" data-panel-content="layout">
-        <p class="helper">O layout é fluido: adicionar ou remover medicamentos reposiciona os itens seguintes e o aviso.</p>
+        <p class="helper">Adicionar ou remover medicamentos reposiciona automaticamente os itens seguintes e o aviso.</p>
         <div class="control-group">
           <label for="medicineGap">Distância entre boxes <output id="medicineGapValue"></output></label>
           <input id="medicineGap" type="range" min="20" max="160" step="2" />
@@ -141,30 +143,36 @@
           <label for="boxRadius">Raio da caixa <output id="boxRadiusValue"></output></label>
           <input id="boxRadius" type="range" min="0" max="60" step="2" />
         </div>
-        <div class="status-card">
-          <strong>Fundo bloqueado</strong>
-          <span>O cabeçalho, a marca, o rodapé e os elementos gráficos permanecem intactos.</span>
-        </div>
+        <div class="status-card"><strong>Fundo bloqueado</strong><span>Somente o fundo é fixo. Todos os conteúdos da prescrição permanecem dinâmicos.</span></div>
+        <div class="status-card autosave-card"><strong>Memória persistente</strong><span id="autosaveStatus">Alterações salvas automaticamente neste navegador.</span></div>
       </section>
 
       <footer class="sidebar-actions">
-        <div class="export-row">
-          <select id="exportScale" aria-label="Escala de exportação">
-            <option value="1">2480 × 3508</option>
-            <option value="2">4960 × 7016 (2×)</option>
-          </select>
-          <button id="exportPng" class="button button-primary" type="button">Baixar PNG</button>
+        <div class="export-grid">
+          <div class="control-group compact-control">
+            <label for="exportFormat">Formato</label>
+            <select id="exportFormat">
+              <option value="pdf">PDF</option>
+              <option value="png">PNG</option>
+              <option value="jpg">JPG</option>
+            </select>
+          </div>
+          <div class="control-group compact-control">
+            <label for="exportScale">Qualidade</label>
+            <select id="exportScale">
+              <option value="1">A4 · 300 DPI · 2480 × 3508</option>
+              <option value="2">Alta · 600 DPI · 4960 × 7016</option>
+            </select>
+          </div>
         </div>
-        <div class="secondary-actions">
-          <button id="saveProject" class="button button-secondary" type="button">Salvar projeto</button>
-          <label class="button button-secondary file-button">Abrir projeto<input id="loadProject" type="file" accept="application/json,.json" /></label>
-        </div>
+        <button id="exportFile" class="button button-primary full-button" type="button">Baixar PDF</button>
+        <button id="saveProject" class="button button-secondary full-button" type="button">Baixar backup JSON</button>
       </footer>
     </aside>
 
     <main class="workspace">
       <div class="workspace-toolbar">
-        <span id="documentInfo">A4 • 2480 × 3508 px</span>
+        <span id="documentInfo">A4 • 2480 × 3508 px • 300 DPI</span>
         <span id="layoutStatus">Layout automático ativo</span>
       </div>
       <div id="stageViewport" class="stage-viewport">
@@ -175,9 +183,9 @@
             <div id="medicinesPreview" class="medicines-preview"></div>
             <div id="warningPreview" class="warning-preview"></div>
             <div id="stampPreview" class="stamp-preview">
-              <div id="stampDatePreview"></div>
-              <div id="professionalPreview"></div>
-              <div id="registrationPreview"></div>
+              <div id="stampDatePreview" class="stamp-date-preview"></div>
+              <div id="professionalPreview" class="stamp-name-preview"></div>
+              <div id="registrationPreview" class="stamp-registration-preview"></div>
             </div>
           </div>
         </div>
@@ -190,18 +198,12 @@
       <div class="medicine-card-head">
         <strong class="medicine-number"></strong>
         <div class="medicine-card-actions">
-          <button class="icon-button duplicate-medicine" type="button" title="Duplicar">Duplicar</button>
-          <button class="icon-button danger remove-medicine" type="button" title="Excluir">Excluir</button>
+          <button class="icon-button duplicate-medicine" type="button">Duplicar</button>
+          <button class="icon-button danger remove-medicine" type="button">Excluir</button>
         </div>
       </div>
-      <div class="control-group">
-        <label>Nome do medicamento</label>
-        <input class="medicine-name-input" type="text" autocomplete="off" />
-      </div>
-      <div class="control-group">
-        <label>Modo de uso</label>
-        <textarea class="medicine-usage-input" rows="3"></textarea>
-      </div>
+      <div class="control-group"><label>Nome do medicamento</label><input class="medicine-name-input" type="text" autocomplete="off" /></div>
+      <div class="control-group"><label>Modo de uso</label><textarea class="medicine-usage-input" rows="3"></textarea></div>
     </article>
   </template>
 

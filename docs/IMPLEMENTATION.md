@@ -1,47 +1,29 @@
-# Implementação
+# Implementação v2
 
-## Documento base
+## Referência
 
-- Tamanho lógico: `2480 × 3508 px`.
-- Fundo: camada fixa em `assets/images/prescription-background.png`.
-- Conteúdo: renderizado em HTML no preview e novamente em Canvas durante a exportação.
+O layout foi atualizado com base em `PRESCRIÇÃO(3).psd` enviado na conversa atual.
 
-## Coordenadas principais
+## Carimbo
 
-- Paciente: região superior central.
-- Lista de medicamentos: `x=165`, `y=865`, largura `2171`.
-- Aviso: `x=224`, largura `2030`, posição Y calculada pelo fluxo.
-- Carimbo: região inferior direita.
+O PSD contém três instâncias equivalentes do carimbo. Seus centros horizontais foram mapeados aproximadamente em:
 
-## Box de medicamento
+- esquerda: `x = 442 px`;
+- centro: `x = 1230 px`;
+- direita: `x = 2018 px`.
 
-A altura não é fixa. É calculada pela soma de:
+As linhas usam Y independentes, preservando a separação da composição:
 
-```text
-padding superior
-+ altura real do nome do medicamento
-+ distância interna
-+ altura real do modo de uso
-+ padding inferior
-```
+- data: `y = 2842 px`;
+- nome profissional: `y = 2885 px`;
+- registro: `y = 2941 px`.
 
-O box seguinte começa após `altura do box atual + gap`.
-
-O aviso começa após `altura total da lista + gap`, portanto mantém a mesma distância física aplicada entre medicamentos.
-
-## Data
-
-Quando `autoDate=true`, a data é obtida de `new Date()` e revalidada a cada minuto. O formato visual é `DD.MM.AAAA`.
-
-## Exportação
-
-A exportação não captura a tela. Ela reconstrói o documento num `<canvas>` com as dimensões finais. Isso evita perda de resolução causada pelo zoom do preview.
-
-Escalas disponíveis:
-
-- 1×: `2480 × 3508`.
-- 2×: `4960 × 7016`.
+Cada linha possui tipografia independente no estado do editor.
 
 ## Persistência
 
-`Salvar projeto` gera um JSON contendo conteúdo, tipografia, layout e carimbo. `Abrir projeto` restaura o estado no navegador.
+O estado completo é salvo automaticamente em `localStorage` usando a chave `prescricao-editor:v2`.
+
+## Exportação
+
+O mesmo renderer de canvas é usado para PNG, JPG e PDF. O PDF é criado localmente como A4 e incorpora a renderização raster na resolução escolhida.
