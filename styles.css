@@ -47,3 +47,7 @@ input[type=color]{width:100%;height:42px;padding:4px;border:1px solid var(--line
 .stamp-preview>div{min-height:0;margin:0;padding:0}
 .stamp-date-preview,.stamp-name-preview,.stamp-registration-preview{width:100%;text-align:center}
 @media(max-width:480px){.export-grid{grid-template-columns:1fr}}
+
+/* v3: slider contínuo do carimbo com referência central */
+.range-axis{display:grid;grid-template-columns:1fr 1fr 1fr;font-size:10px;color:#8a9391;margin-top:-3px}.range-axis span:nth-child(2){text-align:center}.range-axis span:last-child{text-align:right}
+#stampPosition{width:100%}

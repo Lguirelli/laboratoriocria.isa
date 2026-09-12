@@ -35,3 +35,11 @@ A edição é salva automaticamente no armazenamento local do navegador. Isso si
 ## PDF
 
 O PDF é gerado localmente no navegador em tamanho A4. O conteúdo é renderizado na resolução selecionada e incorporado ao PDF sem envio para servidor.
+
+
+## Ajuste v3 do carimbo
+
+- Data ampliada para 48 px por padrão, mantendo proporção visual mais próxima do nome profissional (52 px).
+- A posição horizontal do carimbo agora usa slider contínuo entre X=442 e X=2018.
+- Há snap suave ao centro em X=1230 dentro de uma pequena zona de 32 px.
+- A posição escolhida permanece persistida automaticamente no navegador.

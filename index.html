@@ -44,13 +44,10 @@
         </div>
 
         <div class="control-group">
-          <label for="stampPosition">Posição do carimbo</label>
-          <select id="stampPosition">
-            <option value="left">Esquerda</option>
-            <option value="center">Centro</option>
-            <option value="right">Direita</option>
-          </select>
-          <span class="field-note">As três posições correspondem às três instâncias existentes no PSD.</span>
+          <label for="stampPosition">Posição horizontal <output id="stampPositionValue"></output></label>
+          <input id="stampPosition" type="range" min="442" max="2018" step="1" />
+          <div class="range-axis" aria-hidden="true"><span>Esquerda</span><span>Centro</span><span>Direita</span></div>
+          <span class="field-note">Movimento contínuo entre os limites do PSD, com encaixe suave próximo ao centro.</span>
         </div>
 
         <div class="control-group">

@@ -15,7 +15,7 @@
     medicineName:{family:'Montserrat',size:64,weight:700,letterSpacing:0,lineHeight:1.12,color:'#111111'},
     medicineUsage:{family:'Montserrat',size:52,weight:400,letterSpacing:0,lineHeight:1.28,color:'#111111'},
     warning:{family:'Montserrat',size:48,weight:400,letterSpacing:0,lineHeight:1.35,color:'#111111'},
-    stampDate:{family:'Cormorant Garamond',size:38,weight:700,letterSpacing:.2,lineHeight:1,color:'#111111'},
+    stampDate:{family:'Cormorant Garamond',size:48,weight:700,letterSpacing:.2,lineHeight:1,color:'#111111'},
     stampName:{family:'Cormorant Garamond',size:52,weight:600,letterSpacing:0,lineHeight:1,color:'#111111'},
     stampRegistration:{family:'Arial',size:32,weight:400,letterSpacing:4.5,lineHeight:1,color:'#111111'}
   };
@@ -26,7 +26,7 @@
     patientName:'Nome do paciente',
     medicines:[{id:newId(),name:'Nome do medicamento',usage:'Modo de uso'}],
     warning:'avisos',
-    stamp:{autoDate:true,date:todayISO(),professional:'Isadora Mitestainer Guirelli',registration:'CRF-SP 92908',position:'right'},
+    stamp:{autoDate:true,date:todayISO(),professional:'Isadora Mitestainer Guirelli',registration:'CRF-SP 92908',x:2018},
     typography:JSON.parse(JSON.stringify(defaultTypography)),
     layout:{gap:72,paddingX:54,paddingY:44,radius:26,nameUsageGap:18}
   });
@@ -34,7 +34,7 @@
   const $=id=>document.getElementById(id);
   const els={
     patientName:$('patientName'),medicineList:$('medicineList'),addMedicine:$('addMedicine'),warningText:$('warningText'),
-    stampDate:$('stampDate'),autoDate:$('autoDate'),professionalName:$('professionalName'),registration:$('registration'),stampPosition:$('stampPosition'),
+    stampDate:$('stampDate'),autoDate:$('autoDate'),professionalName:$('professionalName'),registration:$('registration'),stampPosition:$('stampPosition'),stampPositionValue:$('stampPositionValue'),
     styleTarget:$('styleTarget'),fontFamily:$('fontFamily'),fontWeight:$('fontWeight'),fontSize:$('fontSize'),fontSizeValue:$('fontSizeValue'),
     letterSpacing:$('letterSpacing'),letterSpacingValue:$('letterSpacingValue'),lineHeight:$('lineHeight'),lineHeightValue:$('lineHeightValue'),textColor:$('textColor'),
     medicineGap:$('medicineGap'),medicineGapValue:$('medicineGapValue'),boxPaddingX:$('boxPaddingX'),boxPaddingXValue:$('boxPaddingXValue'),
@@ -60,10 +60,15 @@
       typography.stampRegistration={...base.typography.stampRegistration,...legacyStamp,family:'Arial',letterSpacing:4.5};
       delete typography.stamp;
     }
+    const incomingStamp={...(data.stamp||{})};
+    if(!Number.isFinite(Number(incomingStamp.x)) && incomingStamp.position){
+      incomingStamp.x=DESIGN.stampPositions[incomingStamp.position]??base.stamp.x;
+    }
+    delete incomingStamp.position;
     return {
       ...base,...data,
       medicines:Array.isArray(data.medicines)?data.medicines:base.medicines,
-      stamp:{...base.stamp,...(data.stamp||{})},
+      stamp:{...base.stamp,...incomingStamp},
       typography,
       layout:{...base.layout,...(data.layout||{})}
     };
@@ -109,7 +114,7 @@
       const total=lastLayout.medicineHeights.reduce((a,b)=>a+b,0)+Math.max(0,boxes.length-1)*state.layout.gap;
       lastLayout.warningTop=DESIGN.medsTop+total+(boxes.length?state.layout.gap:0);
       els.warningPreview.style.top=`${lastLayout.warningTop}px`;els.warningPreview.textContent=state.warning;applyTextStyle(els.warningPreview,state.typography.warning);
-      const center=DESIGN.stampPositions[state.stamp.position]??DESIGN.stampPositions.right;
+      const center=Number(state.stamp.x)||DESIGN.stampPositions.right;
       els.stampPreview.style.left=`${center-360}px`;els.stampPreview.style.top=`${DESIGN.stampY.date}px`;
       els.stampDatePreview.textContent=formatDate(state.stamp.autoDate?todayISO():state.stamp.date);els.professionalPreview.textContent=state.stamp.professional;els.registrationPreview.textContent=state.stamp.registration;
       applyTextStyle(els.stampDatePreview,state.typography.stampDate);applyTextStyle(els.professionalPreview,state.typography.stampName);applyTextStyle(els.registrationPreview,state.typography.stampRegistration);
@@ -119,9 +124,15 @@
     });
   }
   function changed(){persistState();renderPreview()}
+  function updateStampPositionLabel(){
+    if(!els.stampPositionValue)return;
+    const x=Number(state.stamp.x)||DESIGN.stampPositions.right,center=DESIGN.stampPositions.center;
+    const label=Math.abs(x-center)<1?'Centro':`${Math.round(((x-DESIGN.stampPositions.left)/(DESIGN.stampPositions.right-DESIGN.stampPositions.left))*100)}%`;
+    els.stampPositionValue.value=label;
+  }
 
   function syncContentControls(){
-    els.patientName.value=state.patientName;els.warningText.value=state.warning;els.autoDate.checked=state.stamp.autoDate;els.stampPosition.value=state.stamp.position;
+    els.patientName.value=state.patientName;els.warningText.value=state.warning;els.autoDate.checked=state.stamp.autoDate;els.stampPosition.value=state.stamp.x;updateStampPositionLabel();
     els.stampDate.value=state.stamp.autoDate?todayISO():state.stamp.date;els.stampDate.disabled=state.stamp.autoDate;els.professionalName.value=state.stamp.professional;els.registration.value=state.stamp.registration;
   }
   function syncStyleControls(){
@@ -140,7 +151,7 @@
     els.addMedicine.addEventListener('click',()=>{state.medicines.push({id:newId(),name:'Novo medicamento',usage:'Modo de uso'});renderMedicineEditors();changed()});
     els.autoDate.addEventListener('change',()=>{state.stamp.autoDate=els.autoDate.checked;els.stampDate.disabled=state.stamp.autoDate;if(state.stamp.autoDate)els.stampDate.value=todayISO();changed()});
     els.stampDate.addEventListener('change',()=>{state.stamp.date=els.stampDate.value;changed()});els.professionalName.addEventListener('input',()=>{state.stamp.professional=els.professionalName.value;changed()});els.registration.addEventListener('input',()=>{state.stamp.registration=els.registration.value;changed()});
-    els.stampPosition.addEventListener('change',()=>{state.stamp.position=els.stampPosition.value;changed()});
+    els.stampPosition.addEventListener('input',()=>{let x=Number(els.stampPosition.value);const center=DESIGN.stampPositions.center;const snapRadius=32;if(Math.abs(x-center)<=snapRadius){x=center;els.stampPosition.value=String(center)}state.stamp.x=x;updateStampPositionLabel();changed()});
     els.styleTarget.addEventListener('change',syncStyleControls);
     [['fontFamily','family'],['fontWeight','weight'],['fontSize','size'],['letterSpacing','letterSpacing'],['lineHeight','lineHeight'],['textColor','color']].forEach(([id,key])=>els[id].addEventListener('input',()=>{let v=els[id].value;if(['weight','size','letterSpacing','lineHeight'].includes(key))v=Number(v);state.typography[els.styleTarget.value][key]=v;syncStyleControls();changed()}));
     [['medicineGap','gap'],['boxPaddingX','paddingX'],['boxPaddingY','paddingY'],['boxRadius','radius']].forEach(([id,key])=>els[id].addEventListener('input',()=>{state.layout[key]=Number(els[id].value);syncLayoutControls();changed()}));
@@ -162,7 +173,7 @@
     let y=DESIGN.medsTop*S;
     for(const med of state.medicines){const px=state.layout.paddingX*S,py=state.layout.paddingY*S,inner=DESIGN.medsWidth*S-2*px,nt=state.typography.medicineName,ut=state.typography.medicineUsage;ctx.font=textFont(nt,S);const nlines=splitTextWithLetterSpacing(ctx,med.name,inner,nt,S),nh=nlines.length*nt.size*nt.lineHeight*S;ctx.font=textFont(ut,S);const ulines=splitTextWithLetterSpacing(ctx,med.usage,inner,ut,S),uh=ulines.length*ut.size*ut.lineHeight*S,h=2*py+nh+state.layout.nameUsageGap*S+uh;ctx.strokeStyle='#111';ctx.lineWidth=4*S;roundedRect(ctx,DESIGN.medsLeft*S,y,DESIGN.medsWidth*S,h,state.layout.radius*S);ctx.stroke();ctx.font=textFont(nt,S);ctx.fillStyle=nt.color;ctx.textBaseline='top';nlines.forEach((line,i)=>drawSpacedText(ctx,line,DESIGN.medsLeft*S+px,y+py+i*nt.size*nt.lineHeight*S,nt,S));ctx.font=textFont(ut,S);ctx.fillStyle=ut.color;const uy=y+py+nh+state.layout.nameUsageGap*S;ulines.forEach((line,i)=>drawSpacedText(ctx,line,DESIGN.medsLeft*S+px,uy+i*ut.size*ut.lineHeight*S,ut,S));y+=h+state.layout.gap*S}
     drawTextBlock(ctx,state.warning,DESIGN.warningLeft*S,y,DESIGN.warningWidth*S,state.typography.warning,S);
-    const cx=DESIGN.stampPositions[state.stamp.position]*S;drawCenteredText(ctx,formatDate(state.stamp.autoDate?todayISO():state.stamp.date),cx,DESIGN.stampY.date*S,state.typography.stampDate,S);drawCenteredText(ctx,state.stamp.professional,cx,DESIGN.stampY.name*S,state.typography.stampName,S);drawCenteredText(ctx,state.stamp.registration,cx,DESIGN.stampY.registration*S,state.typography.stampRegistration,S);
+    const cx=(Number(state.stamp.x)||DESIGN.stampPositions.right)*S;drawCenteredText(ctx,formatDate(state.stamp.autoDate?todayISO():state.stamp.date),cx,DESIGN.stampY.date*S,state.typography.stampDate,S);drawCenteredText(ctx,state.stamp.professional,cx,DESIGN.stampY.name*S,state.typography.stampName,S);drawCenteredText(ctx,state.stamp.registration,cx,DESIGN.stampY.registration*S,state.typography.stampRegistration,S);
     return c;
   }
 
