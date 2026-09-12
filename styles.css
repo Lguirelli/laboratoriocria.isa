@@ -1,0 +1,38 @@
+@font-face{font-family:'Cormorant Garamond';src:url('assets/fonts/cormorant/CormorantGaramond-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url('assets/fonts/cormorant/CormorantGaramond-Medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url('assets/fonts/cormorant/CormorantGaramond-SemiBold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:'Cormorant Garamond';src:url('assets/fonts/cormorant/CormorantGaramond-Bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+:root{--ink:#1d2423;--muted:#6d7775;--line:#d8dedc;--surface:#fff;--panel:#f5f7f6;--accent:#809391;--accent-dark:#5f7471;--danger:#a94f4f;--shadow:0 22px 60px rgba(29,36,35,.12);font-family:Montserrat,Arial,sans-serif;color:var(--ink);background:#e9eeec}
+*{box-sizing:border-box}
+body{margin:0;min-width:320px;background:#e9eeec}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app-shell{min-height:100vh;display:grid;grid-template-columns:minmax(330px,420px) 1fr}
+.sidebar{position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:10}
+.sidebar-header{padding:28px 28px 18px}
+.eyebrow,.section-kicker{display:block;font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--accent-dark);margin-bottom:6px}
+.sidebar h1{margin:0;font:600 36px/1 'Cormorant Garamond',serif}
+.sidebar-copy{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.55}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:0 20px 16px;border-bottom:1px solid var(--line)}
+.tab{border:0;background:transparent;padding:10px 6px;border-radius:10px;color:var(--muted);font-size:12px;font-weight:600}
+.tab.is-active{background:#edf2f0;color:var(--ink)}
+.panel{display:none;padding:22px 24px 120px}.panel.is-active{display:block}
+.control-group{display:grid;gap:7px;margin-bottom:16px}
+.control-group label{font-size:12px;font-weight:600;color:#4b5654}
+input[type=text],input[type=date],textarea,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 12px;color:var(--ink);outline:none;transition:.2s border-color,.2s box-shadow}
+textarea{resize:vertical;min-height:82px}
+input:focus,textarea:focus,select:focus{border-color:#9eafac;box-shadow:0 0 0 3px rgba(128,147,145,.12)}
+input[type=range]{width:100%;accent-color:var(--accent-dark)}
+input[type=color]{width:100%;height:42px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 14px}.section-heading.compact{margin-top:30px}.section-heading h2{margin:0;font-size:17px}.section-spacer{margin-top:26px}
+.button{border:0;border-radius:10px;padding:11px 14px;font-size:12px;font-weight:700}.button-primary{background:var(--accent-dark);color:white}.button-primary:hover{background:#526865}.button-secondary{background:#edf2f0;color:var(--ink)}
+.medicine-editor-list{display:grid;gap:12px}.medicine-editor-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfc}.medicine-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.medicine-number{font-size:12px}.medicine-card-actions{display:flex;gap:6px}.icon-button{border:0;background:#edf2f0;border-radius:8px;padding:7px 8px;font-size:10px;font-weight:700;color:#4d5c59}.icon-button.danger{background:#fff0f0;color:var(--danger)}
+.switch-row{display:flex!important;align-items:center;gap:8px;font-weight:500!important}.switch-row input{accent-color:var(--accent-dark)}
+.control-grid.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.helper{margin:0 0 18px;font-size:12px;line-height:1.5;color:var(--muted)}
+.status-card{padding:14px;border-radius:12px;background:#eef4f0;border:1px solid #d9e5dd;display:grid;gap:5px}.status-card strong{font-size:12px}.status-card span{font-size:11px;line-height:1.5;color:var(--muted)}
+.sidebar-actions{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:14px 18px;display:grid;gap:8px}.export-row{display:grid;grid-template-columns:1fr auto;gap:8px}.secondary-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.file-button{text-align:center;position:relative;overflow:hidden}.file-button input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.workspace{min-width:0;display:flex;flex-direction:column;height:100vh}.workspace-toolbar{height:52px;flex:0 0 52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#66716f;font-size:12px}.stage-viewport{flex:1;overflow:auto;padding:28px;display:flex;align-items:flex-start;justify-content:center}.stage-sizer{position:relative}.artboard{position:absolute;left:0;top:0;width:2480px;height:3508px;transform-origin:top left;background:white;box-shadow:var(--shadow);overflow:hidden}.background-layer{position:absolute;inset:0;width:2480px;height:3508px;object-fit:fill;pointer-events:none;user-select:none}
+.patient-preview,.warning-preview,.stamp-preview,.medicines-preview{position:absolute;z-index:2}.patient-preview{left:300px;top:615px;width:1880px;text-align:center;white-space:pre-wrap}.medicines-preview{left:165px;top:865px;width:2171px;display:flex;flex-direction:column}.medicine-preview-box{width:100%;border:4px solid #111;border-radius:26px;display:flex;flex-direction:column;word-break:break-word;white-space:pre-wrap;background:rgba(255,255,255,.01)}.medicine-preview-name,.medicine-preview-usage{margin:0}.warning-preview{left:224px;width:2030px;white-space:pre-wrap;word-break:break-word}.stamp-preview{left:1660px;top:3000px;width:680px;text-align:center;white-space:pre-wrap}.stamp-preview>div{min-height:1em}
+@media(max-width:850px){.app-shell{grid-template-columns:1fr}.sidebar{position:relative;height:auto;max-height:none}.workspace{height:auto;min-height:80vh}.stage-viewport{min-height:70vh}.sidebar-actions{position:sticky}.panel{padding-bottom:30px}}
