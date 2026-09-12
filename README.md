@@ -43,3 +43,18 @@ O PDF é gerado localmente no navegador em tamanho A4. O conteúdo é renderizad
 - A posição horizontal do carimbo agora usa slider contínuo entre X=442 e X=2018.
 - Há snap suave ao centro em X=1230 dentro de uma pequena zona de 32 px.
 - A posição escolhida permanece persistida automaticamente no navegador.
+
+## Biblioteca de arquivos
+
+O `index.html` agora é a página inicial do repositório e exibe os arquivos disponíveis para edição em cards visuais. Cada card usa um preview do documento como fundo e mostra título e data no box inferior.
+
+O editor de prescrição fica em `editor.html?template=prescricao`. Novos arquivos podem ser adicionados ao catálogo em `templates.js`, informando `id`, `title`, `date`, `preview` e `editor`.
+
+Arquivos da biblioteca:
+
+- `index.html` — galeria de arquivos editáveis;
+- `gallery.css` — visual da galeria;
+- `gallery.js` — renderização dos cards;
+- `templates.js` — catálogo de templates;
+- `editor.html` — editor da prescrição;
+- `app.js` — lógica do editor.
