@@ -32,9 +32,9 @@
 
   function projectToCard(project, archived = false) {
     const base = templateById(project.template) || {};
-    const preview = project.preview
+    const preview = project.previewData || (project.preview
       ? `${project.preview}${project.preview.includes('?') ? '&' : '?'}v=${encodeURIComponent(project.updatedAt || project.savedAt || '1')}`
-      : (base.preview || 'assets/images/modelo1-preview.jpg');
+      : (base.preview || 'assets/images/modelo1-preview.jpg'));
     return {
       id: project.id,
       title: project.title || project.fileName || base.title || 'Projeto sem nome',

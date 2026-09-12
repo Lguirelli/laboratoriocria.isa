@@ -59,3 +59,11 @@
 .body-check{width:18px;height:18px;margin-top:1px;color:#5B7E4E;display:block}
 .body-check svg{display:block;width:100%;height:100%}
 .footer-icon-mask{position:absolute;display:block;background:#fff;-webkit-mask-image:var(--footer-mask);mask-image:var(--footer-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;pointer-events:none}
+
+/* v10 — direct rich-text editing on canvas and dynamic text flow */
+.lower-flow{transform:none !important}
+.canvas-rich-editable{pointer-events:auto;cursor:text;outline:none}
+.canvas-rich-editable:focus{outline:1px dashed rgba(1,71,68,.28);outline-offset:3px}
+.editable-body{min-height:0 !important}
+.additional-info-preview{position:absolute}
+.body-line-copy{min-width:0;outline:none}

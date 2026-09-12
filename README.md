@@ -71,3 +71,11 @@ A validação verifica, entre outros pontos:
 - uso da camada compartilhada `ProjectService` pelos três editores.
 
 Mais detalhes em `docs/STABILIZATION_REPORT.md`.
+
+
+## Ajustes v10
+
+- A edição rica pode ser feita selecionando texto diretamente no canvas do modelo ou no campo lateral.
+- Modelo 1 e Modelo 2 aceitam até 3 boxes, com largura fixa e compactação vertical leve somente quando necessária.
+- Os blocos de texto abaixo dos boxes usam fluxo vertical com espaçamentos constantes.
+- `npm start` continua salvando fisicamente em `projects/`. Em hospedagem estática que bloqueie POST (`405`), o editor usa armazenamento persistente do navegador como fallback para não perder a função Salvar/Duplicar.

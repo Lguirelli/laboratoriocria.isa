@@ -68,3 +68,8 @@
 .m2-footer-icon-mask{position:absolute;display:block;background:#fff;-webkit-mask-image:var(--footer-mask);mask-image:var(--footer-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain;pointer-events:none}
 .m2-list-row{--list-scale:1;min-height:calc(39px * var(--list-scale));font-size:calc(20px * var(--list-scale));gap:calc(26px * var(--list-scale));width:800px !important;transform:none !important}
 .m2-list-icon{width:calc(41px * var(--list-scale));height:calc(41px * var(--list-scale));flex:0 0 calc(41px * var(--list-scale))}
+
+/* v10 — direct rich-text editing on canvas */
+.canvas-rich-editable{cursor:text;outline:none}
+.canvas-rich-editable:focus{outline:1px dashed rgba(1,71,68,.28);outline-offset:3px}
+.m2-list-text{min-width:0;outline:none}

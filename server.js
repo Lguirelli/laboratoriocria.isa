@@ -121,6 +121,8 @@ function serveStatic(req,res,urlPath) {
 
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+  if(req.method==='OPTIONS' && u.pathname.startsWith('/api/')){res.writeHead(204,{'Allow':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Accept'});return res.end();}
+  if(u.pathname==='/api/health' && req.method==='GET') return sendJson(res,200,{ok:true,storage:'repository'});
   const previewMatch=u.pathname.match(/^\/api\/project-previews\/([a-zA-Z0-9_-]+\.(?:jpg|png))$/i);
   if(previewMatch && req.method==='GET'){
     const target=path.join(PREVIEWS_DIR,path.basename(previewMatch[1]));
