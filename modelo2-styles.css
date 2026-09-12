@@ -1,0 +1,38 @@
+.model2-design{width:1080px;height:1920px;background:#f3f0eb;overflow:hidden;transform-origin:top left;position:relative}
+.model2-design .fixed-layer{position:absolute;pointer-events:none;user-select:none}
+.m2-bg{inset:0;width:1080px;height:1920px;object-fit:cover;z-index:0}
+.m2-line{left:67px;top:616px;width:96px;height:9px;z-index:2}
+.m2-logo{left:53px;top:83px;width:500px;height:142px;z-index:3}
+.m2-title{position:absolute;left:66px;top:271px;width:511px;min-height:223px;z-index:4;font-family:'Cormorant Garamond',serif;font-weight:600;line-height:.82;color:#014744;display:flex;flex-direction:column;justify-content:center}
+.m2-title-highlight{color:#5b7e4e;font-style:italic}
+.m2-subtitle{position:absolute;left:68px;top:540px;width:620px;min-height:46px;z-index:4;font-family:Montserrat,Arial,sans-serif;font-size:28px;line-height:1.25;font-weight:500;color:#014744;text-transform:uppercase}
+.m2-image-mask{position:absolute;left:540px;top:0;width:540px;height:728px;overflow:hidden;z-index:1;cursor:grab;clip-path:path('M 91 0 H 540 V 728 H 102 C 137 613 127 500 90 390 C 45 258 50 119 91 0 Z')}
+.m2-image-mask:active{cursor:grabbing}
+.m2-image-mask img{width:561px;height:700px;object-fit:cover;transform-origin:center center;pointer-events:none;user-select:none}
+.m2-image-overlay-a{left:631px;top:1px;width:449px;height:725px;z-index:5}
+.m2-image-overlay-b{left:642px;top:313px;width:438px;height:415px;z-index:6}
+.m2-boxes-stage{position:absolute;left:64px;top:644px;width:953px;z-index:10}
+.m2-design-box{position:absolute;left:0;width:953px;min-height:266px;border-radius:28px;display:flex;align-items:center;gap:42px;padding:34px 44px 34px 29px;box-sizing:border-box;font-family:Montserrat,Arial,sans-serif}
+.m2-design-box-icon-wrap{width:178px;height:178px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.m2-design-box-icon-wrap img,.m2-design-box-icon-wrap svg,.m2-design-box-icon-wrap .uploaded-icon-mask{width:94px;height:94px;display:block}
+.m2-design-box-copy{min-width:0;flex:1;display:flex;flex-direction:column;justify-content:center}
+.m2-design-box-copy h3{font-family:'Cormorant Garamond',serif;font-size:48px;line-height:1.02;margin:0 0 18px;font-weight:600}
+.m2-design-box-copy .box-body-preview{font-family:Montserrat,Arial,sans-serif;font-size:25px;line-height:1.35;font-weight:400}
+.m2-list-stage{position:absolute;left:86px;top:1570px;width:800px;z-index:11;display:flex;flex-direction:column;gap:20px}
+.m2-list-row{display:flex;align-items:center;gap:26px;min-height:39px;font-family:Montserrat,Arial,sans-serif;color:#014744;font-size:20px;line-height:1.2;font-weight:500}
+.m2-list-icon{width:41px;height:41px;flex:0 0 41px;display:flex;align-items:center;justify-content:center;color:#014744}
+.m2-list-icon img,.m2-list-icon svg,.m2-list-icon .uploaded-icon-mask{display:block;width:100%;height:100%;object-fit:contain}
+.m2-cta-block{position:absolute;left:0;top:1783px;width:1080px;height:137px;z-index:12}
+.m2-cta-block img{position:absolute;pointer-events:none;user-select:none}
+.m2-cta-bg{left:0;top:0;width:1080px;height:137px}
+.m2-cta-title{left:394px;top:-32px;width:292px;height:19px}
+.m2-cta-note{left:284px;top:72px;width:557px;height:17px}
+.m2-cta-phone{left:663px;top:27px;width:194px;height:24px}
+.m2-cta-whatsapp{left:613px;top:20px;width:37px;height:37px}
+.m2-cta-instagram-text{left:223px;top:26px;width:269px;height:24px}
+.m2-cta-instagram{left:166px;top:19px;width:39px;height:39px}
+.m2-cta-info{left:240px;top:67px;width:30px;height:30px}
+.list-editor{border:1px solid var(--border,#d7d3cc);border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}
+.list-editor-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.list-editor .icon-upload-field{margin-top:10px}
+@media(max-width:900px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}

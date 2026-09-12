@@ -177,3 +177,26 @@ O index permite gerenciar projetos salvos:
 - **Restaurar** devolve o JSON arquivado para `projects/`.
 - **Excluir** remove definitivamente o JSON, esteja ele ativo ou arquivado.
 - Os modelos-base não podem ser arquivados nem excluídos pelo index.
+
+## Modelo 2
+
+O repositório agora inclui também o **Modelo 2**, adaptado do PSD `modelo 2.psd` (1080 × 1920 px) com a mesma lógica estrutural do Modelo 1, mas usando as coordenadas próprias deste layout.
+
+- título e subtítulo editáveis com formatação parcial por seleção;
+- imagem ilustrativa fixa na posição do PSD, usando máscara e reposicionamento interno por arraste;
+- boxes dinâmicos, adicionáveis, duplicáveis e removíveis;
+- boxes usam as mesmas paletas fechadas, padding constante, upload de ícone SVG/PNG e compactação responsiva do Modelo 1;
+- a pilha de boxes é recalculada dentro da faixa original do PSD para preservar a diagramação e o tamanho final de 1080 × 1920 px;
+- lista final editável, com linhas adicionáveis/excluíveis e ícone + texto sempre alinhados horizontalmente;
+- cada linha da lista pode receber seu próprio ícone SVG/PNG;
+- CTA e rodapé preservam a posição e a relação espacial original com a área dos boxes;
+- Salvar projeto, Duplicar, Arquivar, Restaurar e Excluir usam a mesma infraestrutura dos demais modelos;
+- exportação em PDF, PNG e JPG sempre limitada ao canvas original de 1080 × 1920 px.
+
+Arquivos principais:
+
+- `modelo2-editor.html`
+- `modelo2-app.js`
+- `modelo2-styles.css`
+- `assets/modelo2/`
+- `assets/images/modelo2-preview.png`
