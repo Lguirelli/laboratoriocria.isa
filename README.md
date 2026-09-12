@@ -168,3 +168,12 @@ O autosave no navegador continua existindo como rascunho de segurança, mas **Sa
 ### GitHub
 
 O navegador não pode alterar arquivos do repositório remoto via GitHub Pages. Os JSONs criados em `projects/` fazem parte da cópia local do repositório. Para enviá-los ao GitHub, faça `git add`, `git commit` e `git push` normalmente. Em hospedagem com Node e disco persistente, o mesmo servidor pode manter esses arquivos no diretório do projeto.
+
+## Arquivar e excluir projetos
+
+O index permite gerenciar projetos salvos:
+
+- **Arquivar** move fisicamente o JSON de `projects/` para `projects/archive/` e o remove da lista principal.
+- **Restaurar** devolve o JSON arquivado para `projects/`.
+- **Excluir** remove definitivamente o JSON, esteja ele ativo ou arquivado.
+- Os modelos-base não podem ser arquivados nem excluídos pelo index.

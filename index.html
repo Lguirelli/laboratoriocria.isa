@@ -13,25 +13,56 @@
       <div>
         <p class="eyebrow">ARQUIVOS EDITÁVEIS</p>
         <h1>Escolha um arquivo para editar</h1>
-        <p class="library-copy">Os projetos salvos e os modelos disponíveis aparecem abaixo. Clique em um card para continuar a edição.</p>
+        <p class="library-copy">Os projetos salvos e os modelos disponíveis aparecem abaixo. Arquive o que não precisa ficar na lista principal ou exclua definitivamente quando não for mais necessário.</p>
       </div>
     </header>
 
-    <section class="template-grid" id="templateGrid" aria-label="Arquivos disponíveis para edição"></section>
+    <section class="library-group" id="savedGroup">
+      <div class="group-heading"><h2>Projetos</h2><span class="group-count" id="savedCount"></span></div>
+      <div class="template-grid" id="savedGrid" aria-label="Projetos salvos"></div>
+    </section>
+
+    <section class="library-group" id="templatesGroup">
+      <div class="group-heading"><h2>Modelos</h2><span class="group-count" id="templateCount"></span></div>
+      <div class="template-grid" id="templateGrid" aria-label="Modelos disponíveis para edição"></div>
+    </section>
+
+    <section class="library-group archived-group" id="archivedGroup" hidden>
+      <div class="group-heading"><h2>Arquivados</h2><span class="group-count" id="archivedCount"></span></div>
+      <div class="template-grid" id="archivedGrid" aria-label="Projetos arquivados"></div>
+    </section>
   </main>
 
   <template id="templateCard">
-    <a class="template-card" href="#">
-      <img class="template-preview" alt="" loading="eager" />
-      <div class="template-overlay">
-        <div class="template-copy">
-          <strong class="template-title"></strong>
-          <time class="template-date"></time>
+    <article class="template-card-wrap">
+      <a class="template-card" href="#">
+        <img class="template-preview" alt="" loading="eager" />
+        <div class="template-overlay">
+          <div class="template-copy">
+            <strong class="template-title"></strong>
+            <time class="template-date"></time>
+          </div>
+          <span class="template-action" aria-hidden="true">Editar <svg viewBox="0 0 24 24" role="img"><path d="M8 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
-        <span class="template-action" aria-hidden="true">Editar <svg viewBox="0 0 24 24" role="img"><path d="M8 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <div class="card-controls" hidden>
+        <button class="card-control archive-btn" type="button" title="Arquivar projeto" aria-label="Arquivar projeto">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM3 4h18v4H3zm6 7h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Arquivar</span>
+        </button>
+        <button class="card-control restore-btn" type="button" title="Restaurar projeto" aria-label="Restaurar projeto" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v13H4zM3 4h18v4H3zm8 7v5m-2-2 2 2 2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Restaurar</span>
+        </button>
+        <button class="card-control delete-btn danger" type="button" title="Excluir projeto" aria-label="Excluir projeto">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Excluir</span>
+        </button>
       </div>
-    </a>
+    </article>
   </template>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="storage.js"></script>
   <script src="templates.js"></script>
