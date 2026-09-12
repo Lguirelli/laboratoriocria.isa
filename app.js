@@ -69,6 +69,8 @@
     return check;
   }
   function findProject(id){return readProjects().find(item=>item.id===id)||null}
+  async function apiGetProject(id){try{const r=await fetch(`/api/projects/${encodeURIComponent(id)}`,{cache:'no-store'});if(!r.ok)return null;const j=await r.json();return j.project||null}catch{return null}}
+  async function apiSaveProject(record){const r=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(record)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||'Não foi possível gravar o projeto na pasta projects/.');return j.project}
   function draftKey(){return currentProjectId?`${PROJECT_DRAFT_PREFIX}${currentProjectId}`:TEMPLATE_DRAFT_KEY}
   function cloneState(value){return JSON.parse(JSON.stringify(value))}
   function patientLabel(){return String(state.patientName||'').trim()||'Sem nome'}
@@ -252,15 +254,16 @@
     if(!confirmed)throw new Error('O projeto não apareceu no catálogo após a gravação.');
     return confirmed;
   }
-  function saveProject(){
+  async function saveProject(){
     try{
       const now=new Date().toISOString();
       if(!currentProjectId)currentProjectId=newId();
-      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:now,updatedAt:now,state:cloneState(state)};
-      persistProjectRecord(record);
-      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));
+      const existing=await apiGetProject(currentProjectId);
+      const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:existing?.savedAt||now,updatedAt:now,preview:'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(currentProjectId)}`,state:cloneState(state)};
+      await apiSaveProject(record);
+      try{persistProjectRecord(record);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
       history.replaceState({project:currentProjectId},'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
-      setProjectFeedback(`Salvo como “${record.title}”.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();
+      setProjectFeedback(`Salvo como “${record.title}” em projects/.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();
       return currentProjectId;
     }catch(err){
       console.error('Falha ao salvar projeto',err);
@@ -269,19 +272,19 @@
       return null;
     }
   }
-  function duplicateProject(){
+  async function duplicateProject(){
     try{
-      const sourceId=currentProjectId||saveProject();
+      const sourceId=currentProjectId||await saveProject();
       if(!sourceId)throw new Error('Salve o projeto original antes de criar a cópia.');
-      const source=findProject(sourceId);
+      const source=await apiGetProject(sourceId);
       const id=newId(),now=new Date().toISOString();
       const copyTitle=`Prescrição médica · ${patientLabel()} · Cópia`;
-      const record={id,template:'prescricao',title:copyTitle,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId,state:cloneState(state)};
-      persistProjectRecord(record);
-      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));
+      const record={id,template:'prescricao',title:copyTitle,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId,preview:'assets/images/prescricao-preview.jpg',editor:`editor.html?project=${encodeURIComponent(id)}`,state:cloneState(state)};
+      await apiSaveProject(record);
+      try{persistProjectRecord(record);localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));}catch{}
       currentProjectId=id;
       history.replaceState({project:id},'',`editor.html?project=${encodeURIComponent(id)}`);
-      setProjectFeedback(`Cópia criada. O original “${source?.title||projectTitle(false)}” foi preservado.`);
+      setProjectFeedback(`Cópia criada em projects/. O original “${source?.title||projectTitle(false)}” foi preservado.`);
       flashProjectButton(els.duplicateProject,'Cópia criada ✓');updateDocumentTitle();
       return id;
     }catch(err){
@@ -292,6 +295,6 @@
     }
   }
   function tickDate(){if(state.stamp.autoDate){const now=todayISO();if(els.stampDate.value!==now){els.stampDate.value=now;state.stamp.date=now;persistState();renderPreview()}}}
-  function init(){syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}
+  async function init(){if(currentProjectId){const repo=await apiGetProject(currentProjectId);if(repo?.state)state=mergeState(repo.state)}syncContentControls();renderMedicineEditors();syncStyleControls();syncLayoutControls();wire();renderPreview();fitStage();updateDocumentTitle();setInterval(tickDate,60000)}
   init();
 })();

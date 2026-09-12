@@ -1,6 +1,6 @@
 # Editor de Prescrição
 
-Editor web estático baseado no template `PRESCRIÇÃO(3).psd`, pronto para GitHub Pages.
+Editor web com servidor Node leve para persistir projetos como arquivos físicos dentro do repositório.
 
 ## Recursos
 
@@ -20,13 +20,9 @@ Editor web estático baseado no template `PRESCRIÇÃO(3).psd`, pronto para GitH
 - Sem botão de abertura/importação de projeto.
 - Sem build obrigatório: HTML, CSS e JavaScript puro.
 
-## Publicar no GitHub Pages
+## Hospedagem
 
-1. Crie um repositório no GitHub.
-2. Envie todo o conteúdo desta pasta para a raiz do repositório.
-3. Em **Settings → Pages**, selecione **Deploy from a branch**.
-4. Escolha a branch `main` e a pasta `/ (root)`.
-5. Salve e aguarde a publicação.
+Para que **Salvar projeto** e **Duplicar** criem arquivos dentro de `projects/`, execute com Node (`npm start`) ou hospede em um ambiente Node com disco persistente. GitHub Pages pode servir apenas a interface estática e não possui permissão para gravar novos arquivos no repositório.
 
 ## Persistência
 
@@ -137,3 +133,38 @@ A implementação do `modelo-editor.html` foi recalibrada usando `modelo 1 isa(2
 - Ícones do rodapé são os assets extraídos do PSD mais recente.
 - Salvamento do Modelo 1 aguarda IndexedDB e grava também em fallback local.
 - Exportação permanece limitada a 1080 × 1920 px, o tamanho original do PSD.
+
+## Projetos físicos dentro do repositório
+
+A partir desta versão, os botões **Salvar projeto** e **Duplicar** gravam arquivos `.json` reais em `projects/`.
+
+Estrutura:
+
+```text
+projects/
+├── README.md
+├── <id-projeto>.json
+└── <id-copia>.json
+```
+
+O `index.html` consulta `GET /api/projects` e cria automaticamente um card para cada arquivo salvo nessa pasta. Ao abrir um card, o editor carrega o estado diretamente do JSON correspondente.
+
+### Executar
+
+Requer Node.js 18 ou superior:
+
+```bash
+npm start
+```
+
+Depois abra:
+
+```text
+http://localhost:4173
+```
+
+O autosave no navegador continua existindo como rascunho de segurança, mas **Salvar projeto** e **Duplicar** passam a persistir fisicamente em `projects/`.
+
+### GitHub
+
+O navegador não pode alterar arquivos do repositório remoto via GitHub Pages. Os JSONs criados em `projects/` fazem parte da cópia local do repositório. Para enviá-los ao GitHub, faça `git add`, `git commit` e `git push` normalmente. Em hospedagem com Node e disco persistente, o mesmo servidor pode manter esses arquivos no diretório do projeto.
