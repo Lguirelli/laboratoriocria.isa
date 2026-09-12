@@ -8,7 +8,7 @@ window.EDITABLE_TEMPLATES = [
   },
   {
     id: 'modelo1isa',
-    title: 'modelo 1 isa',
+    title: 'Modelo 1',
     date: '12 set 2026',
     preview: 'assets/images/modelo1-preview.jpg',
     editor: 'modelo-editor.html?template=modelo1isa'

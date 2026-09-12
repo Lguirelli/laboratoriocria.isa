@@ -1,7 +1,5 @@
-(async () => {
+(() => {
   'use strict';
-  await window.AppStorage.init();
-  const storage = window.AppStorage;
 
   const LEGACY_STORAGE_KEY = 'prescricao-editor:v2';
   const PROJECTS_KEY = 'prescricao-editor:projects:v1';
@@ -55,15 +53,18 @@
   let lastLayout={medicineHeights:[],warningTop:2793};
   let saveTimer=null;
 
-  const HAS_STORAGE=storage.persistent;
+  function storageAvailable(){
+    try{const key='__prescricao_storage_test__';localStorage.setItem(key,'1');localStorage.removeItem(key);return true}catch{return false}
+  }
+  const HAS_STORAGE=storageAvailable();
   function readProjects(){
     if(!HAS_STORAGE)return [];
-    try{const value=JSON.parse(storage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}
+    try{const value=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}
   }
   function writeProjects(items){
-    if(!HAS_STORAGE)throw new Error('O navegador bloqueou os dois mecanismos persistentes disponíveis.');
-    storage.setItem(PROJECTS_KEY,JSON.stringify(items));
-    const check=JSON.parse(storage.getItem(PROJECTS_KEY)||'[]');
+    if(!HAS_STORAGE)throw new Error('O armazenamento local não está disponível. Abra o projeto por um servidor HTTP ou GitHub Pages.');
+    localStorage.setItem(PROJECTS_KEY,JSON.stringify(items));
+    const check=JSON.parse(localStorage.getItem(PROJECTS_KEY)||'[]');
     if(!Array.isArray(check)||check.length!==items.length)throw new Error('A gravação do projeto não pôde ser confirmada.');
     return check;
   }
@@ -102,12 +103,12 @@
   }
   function loadPersistedState(){
     try{
-      const draft=JSON.parse(storage.getItem(draftKey())||'null');
+      const draft=JSON.parse(localStorage.getItem(draftKey())||'null');
       if(draft)return mergeState(draft);
       if(currentProjectId){const project=findProject(currentProjectId);if(project?.state)return mergeState(project.state)}
-      const templateDraft=JSON.parse(storage.getItem(TEMPLATE_DRAFT_KEY)||'null');
+      const templateDraft=JSON.parse(localStorage.getItem(TEMPLATE_DRAFT_KEY)||'null');
       if(templateDraft)return mergeState(templateDraft);
-      const legacy=JSON.parse(storage.getItem(LEGACY_STORAGE_KEY)||'null');
+      const legacy=JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY)||'null');
       if(legacy)return mergeState(legacy);
     }catch{}
     return initialState();
@@ -116,7 +117,7 @@
   function persistState(){
     try{
       if(!HAS_STORAGE)throw new Error('storage unavailable');
-      storage.setItem(draftKey(),JSON.stringify({...state,version:4,savedAt:new Date().toISOString()}));
+      localStorage.setItem(draftKey(),JSON.stringify({...state,version:4,savedAt:new Date().toISOString()}));
       updateDocumentTitle();
       if(els.autosaveStatus){els.autosaveStatus.textContent='Salvo automaticamente agora.';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{els.autosaveStatus.textContent='Alterações salvas automaticamente neste navegador.'},1300)}
     }catch(e){if(els.autosaveStatus)els.autosaveStatus.textContent='Não foi possível salvar localmente neste navegador.'}
@@ -257,7 +258,7 @@
       if(!currentProjectId)currentProjectId=newId();
       const record={id:currentProjectId,template:'prescricao',title:projectTitle(false),patientName:patientLabel(),savedAt:now,updatedAt:now,state:cloneState(state)};
       persistProjectRecord(record);
-      storage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${currentProjectId}`,JSON.stringify({...state,version:4,savedAt:now}));
       history.replaceState({project:currentProjectId},'',`editor.html?project=${encodeURIComponent(currentProjectId)}`);
       setProjectFeedback(`Salvo como “${record.title}”.`);flashProjectButton(els.saveProject,'Salvo ✓');updateDocumentTitle();
       return currentProjectId;
@@ -277,7 +278,7 @@
       const copyTitle=`Prescrição médica · ${patientLabel()} · Cópia`;
       const record={id,template:'prescricao',title:copyTitle,patientName:patientLabel(),savedAt:now,updatedAt:now,duplicatedFrom:sourceId,state:cloneState(state)};
       persistProjectRecord(record);
-      storage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));
+      localStorage.setItem(`${PROJECT_DRAFT_PREFIX}${id}`,JSON.stringify({...state,version:4,savedAt:now}));
       currentProjectId=id;
       history.replaceState({project:id},'',`editor.html?project=${encodeURIComponent(id)}`);
       setProjectFeedback(`Cópia criada. O original “${source?.title||projectTitle(false)}” foi preservado.`);

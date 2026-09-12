@@ -106,12 +106,15 @@ Regras implementadas no segundo modelo:
 - `assets/images/modelo1-main-image.png`
 - `assets/images/modelo1-logo.png`
 
-## Persistência de projetos
+## Modelo 1 — fidelidade ao PSD
 
-O repositório utiliza uma camada de armazenamento própria:
+A implementação do `modelo-editor.html` foi recalibrada usando `modelo 1 isa(2).psd` como referência final (1080 × 1920 px).
 
-1. **IndexedDB** como mecanismo persistente principal;
-2. **localStorage** como fallback e para migração de projetos de versões anteriores;
-3. memória temporária apenas se o navegador bloquear ambos.
-
-Isso evita a dependência obrigatória de servidor HTTP para salvar, duplicar e restaurar projetos em navegadores compatíveis. Ao atualizar de uma versão anterior, dados existentes em `localStorage` são migrados automaticamente para IndexedDB quando possível.
+- O arquivo aparece como **Modelo 1** no catálogo.
+- O Box 2 do PSD não é renderizado; ele é somente referência da paleta escura.
+- Novos boxes podem ser adicionados pelo editor e respeitam o mesmo padding e espaçamento.
+- Fundos de boxes usam apenas paletas predefinidas do PSD.
+- Cores de texto são limitadas à paleta original.
+- Título possui tamanho máximo editável e ajuste automático para caber na largura original.
+- A imagem ilustrativa aceita upload e reposicionamento por arraste, preservando a máscara e a posição do recorte.
+- Rodapé, logotipo e demais camadas não mencionadas permanecem fixos e usam os assets extraídos do PSD, inclusive os ícones originais.
