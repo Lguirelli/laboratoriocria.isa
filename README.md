@@ -77,3 +77,31 @@ Arquivos da biblioteca:
 - O catálogo é renderizado novamente no evento `pageshow`, inclusive ao voltar pelo cache do navegador.
 - Os botões exibem feedback visual de sucesso ou erro.
 - Para persistência confiável, publique via GitHub Pages ou execute por servidor HTTP local; não dependa de abrir `editor.html` diretamente por `file://`.
+
+## Segundo modelo: `modelo 1 isa`
+
+O repositório agora inclui `modelo-editor.html`, construído a partir do PSD enviado na conversa atual.
+
+Regras implementadas no segundo modelo:
+
+- o nome do arquivo é usado como título do card salvo no `index`;
+- `Salvar projeto` cria/atualiza um projeto persistente no catálogo;
+- `Duplicar` cria novo ID e mantém o original intacto;
+- autosave local continua ativo durante a edição;
+- o espaço entre subtítulo e box 1 permanece constante mesmo quando o subtítulo aumenta;
+- box 1 cresce conforme o conteúdo e mantém padding interno constante;
+- ícone do box é SVG real, selecionado por busca no catálogo de Material/Google Fonts icons incluído no editor;
+- ícone e textos do box usam alinhamento horizontal estável (`flex`, `align-items:center`) e gap controlado;
+- a cor do box ativa uma paleta automática de contraste: a versão escura segue a lógica visual observada no box 2 do PSD, sem renderizar o box 2;
+- body copy alterna entre parágrafo e lista; em modo lista cada linha recebe um check;
+- rodapé mantém o mesmo gap entre todos os ícones e seus textos;
+- exportação disponível em PDF, PNG e JPG.
+
+### Arquivos do segundo modelo
+
+- `modelo-editor.html`
+- `modelo-app.js`
+- `modelo-styles.css`
+- `assets/images/modelo1-preview.jpg`
+- `assets/images/modelo1-main-image.png`
+- `assets/images/modelo1-logo.png`

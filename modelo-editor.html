@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f3f0eb" />
+  <title>Editar modelo 1 isa</title>
+  <link rel="stylesheet" href="modelo-styles.css" />
+</head>
+<body>
+  <div class="editor-shell">
+    <aside class="sidebar" aria-label="Painel de edição">
+      <header class="sidebar-header">
+        <a class="back" href="index.html">← Voltar</a>
+        <p class="eyebrow">EDITOR ONLINE</p>
+        <h1>Material informativo</h1>
+        <p>Todos os textos são persistidos automaticamente neste navegador.</p>
+      </header>
+
+      <nav class="tabs" aria-label="Seções do editor">
+        <button class="tab is-active" data-panel="content">Conteúdo</button>
+        <button class="tab" data-panel="box">Box</button>
+        <button class="tab" data-panel="footer">Rodapé</button>
+      </nav>
+
+      <section class="panel is-active" data-panel-content="content">
+        <label class="field"><span>Nome do arquivo</span><input id="fileName" type="text" /></label>
+        <label class="field"><span>Título</span><textarea id="title" rows="2"></textarea></label>
+        <label class="field"><span>Subtítulo</span><textarea id="subtitle" rows="3"></textarea><small>O espaço até o box 1 permanece constante, mesmo se o texto crescer.</small></label>
+        <div class="two-cols">
+          <label class="field"><span>Espaço subtítulo → box</span><input id="subtitleGap" type="range" min="16" max="72" step="2" /><output id="subtitleGapOut"></output></label>
+          <label class="field"><span>Fundo da página</span><input id="pageBackground" type="color" /></label>
+        </div>
+        <label class="field"><span>Título da seção</span><input id="benefitsTitle" type="text" /></label>
+        <label class="field"><span>Body copy</span><textarea id="bodyCopy" rows="8"></textarea></label>
+        <label class="switch"><input id="bodyIsList" type="checkbox" /><span>Usar como lista, adicionando um check em cada linha</span></label>
+        <label class="field"><span>Texto informativo inferior</span><textarea id="infoText" rows="4"></textarea></label>
+      </section>
+
+      <section class="panel" data-panel-content="box">
+        <label class="field"><span>Título do box 1</span><input id="boxTitle" type="text" /></label>
+        <label class="field"><span>Texto do box 1</span><textarea id="boxBody" rows="6"></textarea></label>
+        <div class="two-cols">
+          <label class="field"><span>Cor do fundo</span><input id="boxBackground" type="color" /></label>
+          <label class="field"><span>Padding</span><input id="boxPadding" type="range" min="18" max="72" step="2" /><output id="boxPaddingOut"></output></label>
+        </div>
+        <label class="switch"><input id="autoPalette" type="checkbox" /><span>Paleta automática conforme o fundo</span></label>
+        <p class="helper">Em fundos escuros, a paleta segue a lógica visual do antigo box 2: texto claro e destaque verde. O box 2 não faz parte do arquivo final.</p>
+
+        <div class="icon-picker">
+          <label class="field"><span>Pesquisar Google Fonts icon</span><input id="iconSearch" type="search" placeholder="Ex.: favorite, science, health..." /></label>
+          <div id="iconResults" class="icon-results" aria-label="Resultados de ícones"></div>
+        </div>
+        <div class="two-cols">
+          <label class="field"><span>Tamanho do ícone</span><input id="iconSize" type="range" min="28" max="96" step="2" /><output id="iconSizeOut"></output></label>
+          <label class="field"><span>Espaço ícone ↔ texto</span><input id="iconGap" type="range" min="12" max="56" step="2" /><output id="iconGapOut"></output></label>
+        </div>
+      </section>
+
+      <section class="panel" data-panel-content="footer">
+        <label class="field"><span>Chamada</span><input id="footerHeading" type="text" /></label>
+        <label class="field"><span>Instagram</span><input id="instagramText" type="text" /></label>
+        <label class="field"><span>WhatsApp</span><input id="whatsappText" type="text" /></label>
+        <label class="field"><span>Informação</span><input id="footerInfo" type="text" /></label>
+        <label class="field"><span>Distância ícone ↔ texto</span><input id="footerGap" type="range" min="6" max="32" step="1" /><output id="footerGapOut"></output><small>A mesma distância é aplicada a todos os itens do rodapé.</small></label>
+      </section>
+
+      <footer class="sidebar-actions">
+        <div class="export-row">
+          <select id="exportFormat" aria-label="Formato"><option value="pdf">PDF</option><option value="png">PNG</option><option value="jpg">JPG</option></select>
+          <button id="exportFile" class="button primary" type="button">Baixar PDF</button>
+        </div>
+        <button id="saveProject" class="button" type="button">Salvar projeto</button>
+        <button id="duplicateProject" class="button" type="button">Duplicar</button>
+        <p id="projectFeedback" class="project-feedback" aria-live="polite"></p>
+      </footer>
+    </aside>
+
+    <main class="workspace">
+      <div class="stage-wrap">
+        <article id="design" class="design" aria-label="Pré-visualização do arquivo">
+          <header class="design-header">
+            <span class="accent-line"></span>
+            <img src="assets/images/modelo1-logo.png" class="brand-logo" alt="" />
+            <h2 id="previewTitle"></h2>
+            <p id="previewSubtitle"></p>
+          </header>
+
+          <section id="previewBox" class="feature-box">
+            <div id="previewIconCircle" class="feature-icon" aria-hidden="true"><span id="previewIcon"></span></div>
+            <div class="feature-copy"><h3 id="previewBoxTitle"></h3><p id="previewBoxBody"></p></div>
+          </section>
+
+          <section class="benefits-section">
+            <h3 id="previewBenefitsTitle"></h3>
+            <div id="previewBodyCopy" class="body-copy"></div>
+            <div class="image-cutout"><img src="assets/images/modelo1-main-image.png" alt="Imagem ilustrativa" /></div>
+            <p id="previewInfoText" class="info-copy"></p>
+          </section>
+
+          <footer class="design-footer">
+            <div id="previewFooterHeading" class="footer-heading"></div>
+            <div class="footer-bar">
+              <div class="footer-item"><span class="footer-svg" data-icon="instagram"></span><span id="previewInstagram"></span></div>
+              <div class="footer-item"><span class="footer-svg" data-icon="whatsapp"></span><span id="previewWhatsapp"></span></div>
+              <div class="footer-item wide"><span class="footer-svg" data-icon="info"></span><span id="previewFooterInfo"></span></div>
+            </div>
+          </footer>
+        </article>
+      </div>
+    </main>
+  </div>
+  <script src="modelo-app.js"></script>
+</body>
+</html>
