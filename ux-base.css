@@ -1,0 +1,23 @@
+:root{
+  --ux-space-1:4px;--ux-space-2:8px;--ux-space-3:12px;--ux-space-4:16px;--ux-space-5:24px;--ux-space-6:32px;--ux-space-7:48px;
+  --ux-radius-sm:8px;--ux-radius-md:12px;--ux-radius-lg:20px;
+  --ux-focus:#2457d6;--ux-danger:#9d2525;--ux-success:#1f6b3d;
+  --ux-duration-fast:120ms;--ux-duration-base:180ms;--ux-ease:cubic-bezier(.22,1,.36,1);
+}
+[hidden]{display:none!important}
+.skip-link{position:fixed;left:12px;top:12px;z-index:10000;padding:10px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;transform:translateY(-160%);transition:transform var(--ux-duration-fast) ease}
+.skip-link:focus{transform:none}
+:where(button,a,input,textarea,select,[contenteditable="true"]):focus-visible{outline:3px solid color-mix(in srgb,var(--ux-focus) 78%,white);outline-offset:3px}
+:where(button,.button,.card-control,.tab,.mini,.icon-button,.back,.back-to-library){min-height:44px}
+:where(button,.button,.card-control,.tab,.mini,.icon-button){touch-action:manipulation}
+:where(button,.button,.card-control,.tab,.mini,.icon-button):disabled{cursor:not-allowed!important;opacity:.55!important;transform:none!important}
+[aria-busy="true"]{cursor:progress}
+.project-feedback:not(:empty),.project-status:not(:empty){padding:9px 11px;border-radius:10px;background:#f4f5f7;color:#4d5058}
+.project-feedback[data-kind="success"],.project-status[data-kind="success"]{background:#eaf6ef;color:var(--ux-success)}
+.project-feedback[data-kind="error"],.project-status[data-kind="error"]{background:#fff0f0;color:var(--ux-danger)}
+.tabs[role="tablist"]{isolation:isolate}
+.tab[role="tab"]{min-width:0}
+.tab[role="tab"][aria-selected="true"]{font-weight:800}
+.panel[role="tabpanel"]:focus{outline:none}
+@media (hover:none){.template-card:hover,.button:hover,.card-control:hover{transform:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}

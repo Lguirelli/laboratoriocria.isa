@@ -67,3 +67,15 @@
 .editable-body{min-height:0 !important}
 .additional-info-preview{position:absolute}
 .body-line-copy{min-width:0;outline:none}
+
+/* UX system refinements */
+.back{align-items:center;padding:0 4px;border-radius:8px}
+.tabs{overflow-x:auto;scrollbar-width:none;grid-template-columns:repeat(auto-fit,minmax(74px,1fr))}
+.tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap}
+.rich-input{min-height:44px}
+.button,.mini,.palette-card,.icon-choice{min-height:44px}
+.mini{padding:8px 10px}.icon-choice{min-width:44px}
+.project-actions-priority{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sidebar-actions .button.primary{box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.export-row{margin-top:2px}
+@media(max-width:520px){.project-actions-priority{grid-template-columns:1fr}.tabs{display:flex}.tab{flex:0 0 auto;min-width:96px}.sidebar-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}}

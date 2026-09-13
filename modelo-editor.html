@@ -6,8 +6,10 @@
   <meta name="theme-color" content="#f3f0eb" />
   <title>Modelo 1</title>
   <link rel="stylesheet" href="modelo-styles.css" />
+  <link rel="stylesheet" href="ux-base.css" />
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Ir para o conteúdo principal</a>
 <div class="editor-shell">
   <aside class="sidebar">
     <header class="sidebar-header">
@@ -17,7 +19,7 @@
       <p>O layout e as camadas fixas seguem o PSD. Os controles abaixo alteram apenas os elementos editáveis.</p>
     </header>
 
-    <nav class="tabs">
+    <nav class="tabs" aria-label="Seções do editor">
       <button class="tab is-active" data-panel="text">Textos</button>
       <button class="tab" data-panel="boxes">Boxes</button>
       <button class="tab" data-panel="image">Imagem</button>
@@ -56,17 +58,19 @@
     </section>
 
     <footer class="sidebar-actions">
-      <div class="export-row">
-        <select id="exportFormat"><option value="pdf">PDF</option><option value="png">PNG</option><option value="jpg">JPG</option></select>
-        <button id="exportFile" class="button primary" type="button">Baixar PDF</button>
+      <div class="project-actions-priority">
+        <button id="saveProject" class="button primary" type="button">Salvar projeto</button>
+        <button id="duplicateProject" class="button" type="button">Duplicar</button>
       </div>
-      <button id="saveProject" class="button" type="button">Salvar projeto</button>
-      <button id="duplicateProject" class="button" type="button">Duplicar</button>
+      <div class="export-row" aria-label="Exportação">
+        <select id="exportFormat" aria-label="Formato de exportação"><option value="pdf">PDF</option><option value="png">PNG</option><option value="jpg">JPG</option></select>
+        <button id="exportFile" class="button" type="button">Baixar PDF</button>
+      </div>
       <p id="projectFeedback" class="project-feedback" aria-live="polite"></p>
     </footer>
   </aside>
 
-  <main class="workspace">
+  <main class="workspace" id="mainContent">
     <div class="stage-wrap">
       <article id="design" class="design" aria-label="Pré-visualização do Modelo 1">
         <img class="fixed-layer line-layer" src="assets/modelo1/layer-2.png" alt="">
@@ -105,6 +109,7 @@
 <script src="storage.js"></script>
 <script src="project-service.js"></script>
 <script src="project-dialog.js"></script>
+<script src="ux-common.js"></script>
 <script src="modelo-app.js"></script>
 </body>
 </html>

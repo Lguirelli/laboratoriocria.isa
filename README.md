@@ -79,3 +79,9 @@ Mais detalhes em `docs/STABILIZATION_REPORT.md`.
 - Modelo 1 e Modelo 2 aceitam até 3 boxes, com largura fixa e compactação vertical leve somente quando necessária.
 - Os blocos de texto abaixo dos boxes usam fluxo vertical com espaçamentos constantes.
 - `npm start` continua salvando fisicamente em `projects/`. Em hospedagem estática que bloqueie POST (`405`), o editor usa armazenamento persistente do navegador como fallback para não perder a função Salvar/Duplicar.
+
+## Sistema global de UX/UI
+
+A especificação de interface do projeto está em `docs/UX_UI_RULES.md` e deve ser usada como checklist nas próximas alterações. A aplicação desta rodada está documentada em `docs/UX_AUDIT.md`.
+
+A hierarquia de ações dos editores agora prioriza **Salvar projeto**. Arquivamento possui recuperação rápida por **Desfazer**, enquanto exclusão permanente exige confirmação pelo nome do projeto. Tabs, foco, teclado, touch targets e reduced motion receberam tratamento global compartilhado em `ux-base.css` e `ux-common.js`.

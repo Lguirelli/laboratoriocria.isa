@@ -60,3 +60,11 @@ input[type=color]{width:100%;height:42px;padding:4px;border:1px solid var(--line
 
 .button.is-success{background:#dcebe3!important;color:#214d37!important;border-color:#bad7c6!important}
 .project-status{font-weight:600}
+
+/* UX system refinements */
+.back-to-library{min-height:44px;align-items:center;padding:0 4px}
+.button{min-height:44px;cursor:pointer}.project-actions-primary{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{min-height:44px;cursor:pointer}
+.sidebar-actions{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+@media(max-width:480px){.project-actions-primary{grid-template-columns:1fr}.tabs{display:flex}.tab{flex:1 0 92px}}

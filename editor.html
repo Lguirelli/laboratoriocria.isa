@@ -6,8 +6,10 @@
   <meta name="theme-color" content="#7f9391" />
   <title>Editar prescrição</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="ux-base.css" />
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Ir para o conteúdo principal</a>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Painel de edição">
       <header class="sidebar-header">
@@ -111,16 +113,16 @@
           <div class="control-group compact-control"><label for="exportFormat">Formato</label><select id="exportFormat"><option value="pdf">PDF</option><option value="png">PNG</option><option value="jpg">JPG</option></select></div>
           <div class="control-group compact-control"><label for="exportScale">Qualidade</label><select id="exportScale"><option value="1">A4 · 300 DPI · 2480 × 3508</option><option value="2">Alta · 600 DPI · 4960 × 7016</option></select></div>
         </div>
-        <button id="exportFile" class="button button-primary full-button" type="button">Baixar PDF</button>
-        <div class="project-actions">
-          <button id="saveProject" class="button button-secondary full-button" type="button">Salvar projeto</button>
+        <div class="project-actions project-actions-primary">
+          <button id="saveProject" class="button button-primary full-button" type="button">Salvar projeto</button>
           <button id="duplicateProject" class="button button-secondary full-button" type="button">Duplicar</button>
         </div>
+        <button id="exportFile" class="button button-secondary full-button" type="button">Baixar PDF</button>
         <span id="projectStatus" class="project-status" role="status" aria-live="polite"></span>
       </footer>
     </aside>
 
-    <main class="workspace">
+    <main class="workspace" id="mainContent">
       <div class="workspace-toolbar"><span id="documentInfo">A4 • 2480 × 3508 px • 300 DPI</span><span id="layoutStatus">Layout automático ativo</span></div>
       <div id="stageViewport" class="stage-viewport"><div id="stageSizer" class="stage-sizer"><div id="artboard" class="artboard" aria-label="Pré-visualização da prescrição">
         <img class="background-layer" src="assets/images/prescription-background.png" alt="" draggable="false" />
@@ -143,6 +145,7 @@
   <script src="storage.js"></script>
   <script src="project-service.js"></script>
   <script src="project-dialog.js"></script>
+  <script src="ux-common.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

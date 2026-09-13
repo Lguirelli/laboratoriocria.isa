@@ -37,6 +37,16 @@ for (const file of ['editor.html','modelo-editor.html','modelo2-editor.html']) {
   assert(html.includes('project-service.js'), `${file} não carrega project-service.js.`);
 }
 
+
+const ux = read('ux-base.css');
+assert(ux.includes('prefers-reduced-motion'), 'ux-base.css sem suporte a reduced motion.');
+assert(ux.includes('min-height:44px'), 'ux-base.css sem target mínimo compartilhado.');
+const uxCommon = read('ux-common.js');
+assert(uxCommon.includes("setAttribute('role','tablist')"), 'ux-common.js sem semântica de tabs.');
+const dialog = read('project-dialog.js');
+assert(dialog.includes("document.createElement('dialog')"), 'project-dialog.js não usa dialog nativo.');
+assert(dialog.includes('confirmDelete'), 'project-dialog.js sem confirmação destrutiva dedicada.');
+
 if (failures.length) {
   console.error('VALIDAÇÃO FALHOU');
   failures.forEach(item => console.error(' - ' + item));

@@ -11,14 +11,22 @@
   const templates = [...new Map(rawTemplates.map(item => [item.id, item])).values()];
   const ProjectService = window.ProjectService;
   let toastTimer;
+  let toastActionCleanup = null;
   let renderGeneration = 0;
 
-  function showToast(message, kind = 'ok') {
-    toast.textContent = message;
+  function showToast(message, kind = 'ok', action = null) {
+    clearTimeout(toastTimer);
+    if (toastActionCleanup) { toastActionCleanup(); toastActionCleanup = null; }
+    toast.replaceChildren();
+    const label = document.createElement('span'); label.textContent = message; toast.appendChild(label);
+    if (action?.label && typeof action.onClick === 'function') {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'toast-action'; button.textContent = action.label;
+      const handler = async () => { button.disabled = true; try { await action.onClick(); } finally { toast.classList.remove('show'); } };
+      button.addEventListener('click', handler); toast.appendChild(button); toastActionCleanup = () => button.removeEventListener('click', handler);
+    }
     toast.dataset.kind = kind;
     toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), action ? 5200 : 2800);
   }
 
   function formatSavedDate(iso) {
@@ -68,8 +76,11 @@
 
       archiveButton.addEventListener('click', async () => {
         archiveButton.disabled = true;
-        try { await ProjectService.archive(item.id); showToast('Projeto arquivado.'); await renderGallery(); }
-        catch (error) { showToast(error.message || 'Erro ao arquivar.', 'error'); }
+        try {
+          await ProjectService.archive(item.id);
+          await renderGallery();
+          showToast('Projeto arquivado.', 'ok', { label: 'Desfazer', onClick: async () => { await ProjectService.restore(item.id); await renderGallery(); showToast('Projeto restaurado.'); } });
+        } catch (error) { showToast(error.message || 'Erro ao arquivar.', 'error'); }
         finally { archiveButton.disabled = false; }
       });
       restoreButton.addEventListener('click', async () => {
@@ -79,9 +90,10 @@
         finally { restoreButton.disabled = false; }
       });
       deleteButton.addEventListener('click', async () => {
-        if (!confirm(`Excluir “${item.title}” definitivamente? Esta ação não pode ser desfeita.`)) return;
+        const confirmed = await window.ProjectNameDialog?.confirmDelete?.({ name: item.title });
+        if (!confirmed) return;
         deleteButton.disabled = true;
-        try { await ProjectService.remove(item.id); showToast('Projeto excluído.'); await renderGallery(); }
+        try { await ProjectService.remove(item.id); showToast('Projeto excluído permanentemente.'); await renderGallery(); }
         catch (error) { showToast(error.message || 'Erro ao excluir.', 'error'); }
         finally { deleteButton.disabled = false; }
       });
